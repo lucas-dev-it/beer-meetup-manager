@@ -11,10 +11,10 @@ import (
 	"time"
 
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/controller"
-	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/pkg"
+	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal"
 )
 
-var port = pkg.GetEnv("PORT", "3999")
+var port = internal.GetEnv("PORT", "3999")
 
 func main() {
 	server := &http.Server{
