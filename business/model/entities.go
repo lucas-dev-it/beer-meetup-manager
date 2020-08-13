@@ -24,4 +24,7 @@ type MeetUp struct {
 	Name        string     `gorm:"not null"`
 	Description string     `gorm:"not null"`
 	DateOn      *time.Time `gorm:"index;not null"`
+	Country     string     `gorm:"not null"`
+	State       string     `gorm:"not null"`
+	City        string     `gorm:"not null"`
 }
