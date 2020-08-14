@@ -32,6 +32,7 @@ var prepareTestMigration = func(db *gorm.DB) error {
 			Description: "admin scope description",
 		}
 
+		// TODO check existence first before calling this
 		tx.Create(userScope)
 		tx.Create(adminScope)
 
