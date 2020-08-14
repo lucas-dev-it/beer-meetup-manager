@@ -11,12 +11,20 @@ import (
 	"time"
 
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/controller"
+	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/infrastructure/postgres"
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal"
 )
 
 var port = internal.GetEnv("PORT", "3999")
 
 func main() {
+	db, err := postgres.NewPostgres()
+	if err != nil {
+		log.Fatalf("postgres: %v", err)
+	}
+
+	defer db.Close()
+
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%s", port),
 		Handler:      controller.New(),
