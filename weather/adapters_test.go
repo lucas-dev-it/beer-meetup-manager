@@ -80,7 +80,7 @@ func TestWeatherStackAdapter(t *testing.T) {
 		t.Errorf("unexpected error, got %v", err)
 	}
 
-	if len(forecast.dateTempMap) != 2 {
+	if len(forecast.DateTempMap) != 2 {
 		t.Errorf("unexpected result, got %v, ", forecast)
 	}
 }

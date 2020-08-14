@@ -15,12 +15,12 @@ type HttpClient interface {
 }
 
 type Forecast struct {
-	dateTempMap map[uint]*DailyForecast
+	DateTempMap map[uint]*DailyForecast
 }
 
 type DailyForecast struct {
-	minTemp float64
-	maxTemp float64
+	MinTemp float64
+	MaxTemp float64
 }
 
 type WService struct {

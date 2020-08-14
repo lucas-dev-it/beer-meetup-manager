@@ -1,6 +1,7 @@
 package weather
 
 import (
+	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -24,20 +25,20 @@ var weatherStack = func(response map[string]interface{}) (*Forecast, error) {
 	resultMap := make(map[uint]*DailyForecast, len(wsf.Forecast))
 	for _, day := range wsf.Forecast {
 		if day.MaxTemp == nil && day.MinTemp == nil {
-			return nil, ErrResourceMissingData
+			return nil, meetupmanager.ErrResourceMissingData
 		}
 
 		df := &DailyForecast{}
 		if day.MaxTemp != nil {
-			df.maxTemp = *day.MaxTemp
+			df.MaxTemp = *day.MaxTemp
 		}
 
 		if day.MinTemp != nil {
-			df.minTemp = *day.MinTemp
+			df.MinTemp = *day.MinTemp
 		}
 
 		resultMap[day.DateEpoch] = df
 	}
 
-	return &Forecast{dateTempMap: resultMap}, nil
+	return &Forecast{DateTempMap: resultMap}, nil
 }

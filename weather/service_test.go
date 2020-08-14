@@ -49,14 +49,14 @@ func TestWService_GetForecast(t *testing.T) {
 	}
 
 	expected := &Forecast{
-		dateTempMap: map[uint]*DailyForecast{
+		DateTempMap: map[uint]*DailyForecast{
 			1567814400: {
-				maxTemp: 25,
-				minTemp: 17,
+				MaxTemp: 25,
+				MinTemp: 17,
 			},
 			1567911600: {
-				maxTemp: 20,
-				minTemp: 30,
+				MaxTemp: 20,
+				MinTemp: 30,
 			},
 		},
 	}

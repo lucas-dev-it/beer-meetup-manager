@@ -19,7 +19,7 @@ var (
 	environment = internal.GetEnv("ENVIRONMENT", "dev")
 )
 
-// NewPostgres return new connection to DB and execute migration.
+// NewPostgres return new connection to db and execute migration.
 func NewPostgres() (*gorm.DB, error) {
 	connectStr := fmt.Sprintf(
 		"host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
