@@ -15,13 +15,11 @@ const URL = "http://api.weatherstack.com"
 var accessKey = internal.GetEnv("WEATHERSTACK_API_KEY", "myTestAPIKey")
 
 type weatherStackCli struct {
-	httpCli httpClient
 	Adapter adapter
 }
 
-func NewWeatherStackResource(httpCli httpClient, adapter adapter) *weatherStackCli {
+func NewWeatherStackResource(adapter adapter) *weatherStackCli {
 	return &weatherStackCli{
-		httpCli: httpCli,
 		Adapter: adapter,
 	}
 }
@@ -30,7 +28,7 @@ func (cli *weatherStackCli) GetAdapter() adapter {
 	return cli.Adapter
 }
 
-func (cli *weatherStackCli) GetForecastData(country, state, city string, forecastDays uint) (map[string]interface{}, error) {
+func (cli *weatherStackCli) GetForecastData(country, state, city string, forecastDays uint, httpCli HttpClient) (map[string]interface{}, error) {
 	request := &httpclient.RequestData{
 		Verb: http.MethodGet,
 		URL:  fmt.Sprintf("%v/forecast", URL),
@@ -42,7 +40,7 @@ func (cli *weatherStackCli) GetForecastData(country, state, city string, forecas
 		},
 	}
 
-	response, err := cli.httpCli.PerformRequest(request)
+	response, err := httpCli.PerformRequest(request)
 	if err != nil {
 		return nil, err
 	}

@@ -3,9 +3,16 @@ package handlers
 import (
 	"io"
 	"net/http"
+
+	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/interfaces"
 )
 
 type MeetupHandler struct {
+	weatherService interfaces.WeatherService
+}
+
+func NewMeetupHandler(ws interfaces.WeatherService) *MeetupHandler {
+	return &MeetupHandler{weatherService: ws}
 }
 
 func (h *MeetupHandler) CalculateBeers(w io.Writer, r *http.Request) (interface{}, int, error) {

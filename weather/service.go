@@ -8,12 +8,9 @@ import (
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal/httpclient"
 )
 
-var (
-	providerName = internal.GetEnv("WEATHER_PROVIDER", "weather-stack")
-	forecastDays = internal.GetEnv("FORECAST_DAYS", "5")
-)
+var forecastDays = internal.GetEnv("FORECAST_DAYS", "5")
 
-type httpClient interface {
+type HttpClient interface {
 	PerformRequest(rd *httpclient.RequestData) (*http.Response, error)
 }
 
@@ -30,13 +27,8 @@ type WService struct {
 	weatherProvider WeatherProvider
 }
 
-func NewWeatherService(httpCli httpClient) (*WService, error) {
-	wProvider, err := GetProvider(providerName, httpCli)
-	if err != nil {
-		return nil, err
-	}
-
-	return &WService{weatherProvider: wProvider}, nil
+func NewWeatherService(weatherProvider WeatherProvider) (*WService, error) {
+	return &WService{weatherProvider: weatherProvider}, nil
 }
 
 func (ws *WService) GetForecast(country, state, city string) (*Forecast, error) {
@@ -45,7 +37,8 @@ func (ws *WService) GetForecast(country, state, city string) (*Forecast, error) 
 		return nil, err
 	}
 
-	response, err := ws.weatherProvider.GetForecastData(country, state, city, uint(fd))
+	client := httpclient.New(30) // TODO move this to env var
+	response, err := ws.weatherProvider.GetForecastData(country, state, city, uint(fd), client)
 	if err != nil {
 		return nil, err
 	}

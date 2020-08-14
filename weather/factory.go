@@ -5,15 +5,15 @@ import (
 )
 
 type WeatherProvider interface {
-	GetForecastData(country, state, city string, forecastDays uint) (map[string]interface{}, error)
+	GetForecastData(country, state, city string, forecastDays uint, client HttpClient) (map[string]interface{}, error)
 	GetAdapter() adapter
 }
 
-func GetProvider(resourceName string, client httpClient) (WeatherProvider, error) {
-	switch resourceName {
+func GetProvider(providerName string) (WeatherProvider, error) {
+	switch providerName {
 	case "weather-stack":
-		return NewWeatherStackResource(client, weatherStack), nil
+		return NewWeatherStackResource(weatherStack), nil
 	default:
-		return nil, fmt.Errorf("there is no such %v defined resource to fetch the weather forecast", resourceName)
+		return nil, fmt.Errorf("there is no such %v defined resource to fetch the weather forecast", providerName)
 	}
 }
