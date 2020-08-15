@@ -8,14 +8,14 @@ import (
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal/httpclient"
 )
 
-var forecastDays = internal.GetEnv("FORECAST_DAYS", "5")
+var forecastDays = internal.GetEnv("FORECAST_DAYS", "10")
 
 type HttpClient interface {
 	PerformRequest(rd *httpclient.RequestData) (*http.Response, error)
 }
 
 type Forecast struct {
-	DateTempMap map[uint]*DailyForecast
+	DateTempMap map[int64]*DailyForecast
 }
 
 type DailyForecast struct {

@@ -13,7 +13,7 @@ import (
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/weather"
 )
 
-var weatherProviderName = internal.GetEnv("WEATHER_PROVIDER", "weather-stack")
+var weatherProviderName = internal.GetEnv("WEATHER_PROVIDER", "weather-bit")
 
 type builder struct {
 	postgresDB *gorm.DB

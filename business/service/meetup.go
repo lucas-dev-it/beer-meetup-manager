@@ -57,7 +57,7 @@ func (ms *MeetUpService) CalculateBeerPacksForMeetup(meetupID uint) (*business.M
 	msd := meetup.StartDate
 	// use 0 hour for the lookup
 	unixDate := time.Date(msd.Year(), msd.Month(), msd.Day(), 0, 0, 0, 0, msd.Location()).Unix()
-	dailyForecast, ok := forecast.DateTempMap[uint(unixDate)]
+	dailyForecast, ok := forecast.DateTempMap[unixDate]
 	if !ok {
 		return nil, meetupmanager.ErrForecastNotAvailable
 	}

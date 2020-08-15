@@ -10,33 +10,33 @@ import (
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal/httpclient"
 )
 
-const wsURL = "http://api.weatherstack.com"
+const wbURL = "https://api.weatherbit.io"
 
-var wsAccessKey = internal.GetEnv("WEATHERSTACK_API_KEY", "myTestAPIKey")
+var wbAccessKey = internal.GetEnv("WEATHERBIT_API_KEY", "myTestAPIKey")
 
-type weatherStackCli struct {
+type weatherBitCli struct {
 	Adapter adapter
 }
 
-func NewWeatherStackResource(adapter adapter) *weatherStackCli {
-	return &weatherStackCli{
+func NewWeatherBitResource(adapter adapter) *weatherBitCli {
+	return &weatherBitCli{
 		Adapter: adapter,
 	}
 }
 
-func (cli *weatherStackCli) GetAdapter() adapter {
+func (cli *weatherBitCli) GetAdapter() adapter {
 	return cli.Adapter
 }
 
-func (cli *weatherStackCli) GetForecastData(country, state, city string, forecastDays uint, httpCli HttpClient) (map[string]interface{}, error) {
+func (cli *weatherBitCli) GetForecastData(country, state, city string, forecastDays uint, httpCli HttpClient) (map[string]interface{}, error) {
 	request := &httpclient.RequestData{
 		Verb: http.MethodGet,
-		URL:  fmt.Sprintf("%v/forecast", wsURL),
+		URL:  fmt.Sprintf("%v/v2.0/forecast/daily", wbURL),
 		QueryParams: map[string]string{
-			"access_key":    wsAccessKey,
-			"query":         fmt.Sprintf("%v,%v,%v", country, state, city),
-			"forecast_days": fmt.Sprintf("%v", forecastDays),
-			"units":         "m",
+			"key":     wbAccessKey,
+			"country": country,
+			"city":    city,
+			"days":    fmt.Sprintf("%v", forecastDays),
 		},
 	}
 
