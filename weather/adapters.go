@@ -47,7 +47,7 @@ var weatherStack = func(response map[string]interface{}) (*Forecast, error) {
 
 var weatherBit = func(response map[string]interface{}) (*Forecast, error) {
 	type wbForecastDaily struct {
-		Datetime string   `mapstructure:"valid_date"`
+		Datetime *string  `mapstructure:"valid_date"`
 		MinTemp  *float64 `mapstructure:"min_temp"`
 		MaxTemp  *float64 `mapstructure:"max_temp"`
 	}
@@ -62,7 +62,11 @@ var weatherBit = func(response map[string]interface{}) (*Forecast, error) {
 
 	resultMap := make(map[int64]*DailyForecast, len(wbf.Forecast))
 	for _, day := range wbf.Forecast {
-		actualDate, err := time.Parse("2006-01-02", day.Datetime)
+		if day.MaxTemp == nil || day.Datetime == nil {
+			return nil, meetupmanager.ErrResourceMissingData
+		}
+
+		actualDate, err := time.Parse("2006-01-02", *day.Datetime)
 		if err != nil {
 			return nil, err
 		}

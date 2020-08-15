@@ -6,8 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	meetupmanager "github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233"
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal"
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal/httpclient"
+	"github.com/pkg/errors"
 )
 
 const wsURL = "http://api.weatherstack.com"
@@ -47,7 +49,7 @@ func (cli *weatherStackCli) GetForecastData(country, state, city string, forecas
 	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
-		return nil, fmt.Errorf("invalid status code: %d", response.StatusCode)
+		return nil, errors.Wrapf(meetupmanager.ErrResourceInvalidStatusCode, "invalid status code: %d", response.StatusCode)
 	}
 
 	body, err := ioutil.ReadAll(response.Body)

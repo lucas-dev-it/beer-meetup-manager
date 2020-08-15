@@ -44,7 +44,6 @@ func (ms *MeetUpService) CalculateBeerPacksForMeetup(meetupID uint) (*business.M
 	// TODO check cache first if no results call the weather provider
 	forecast, err := ms.weatherService.GetForecast(meetup.Country, meetup.State, meetup.City)
 	if err != nil {
-		// TODO evaluate errors here
 		return nil, err
 	}
 	// TODO save in cache what is returned as forecast use country-state-city as key (api have to receive standard names for location)
@@ -59,7 +58,7 @@ func (ms *MeetUpService) CalculateBeerPacksForMeetup(meetupID uint) (*business.M
 	unixDate := time.Date(msd.Year(), msd.Month(), msd.Day(), 0, 0, 0, 0, msd.Location()).Unix()
 	dailyForecast, ok := forecast.DateTempMap[unixDate]
 	if !ok {
-		return nil, meetupmanager.ErrForecastNotAvailable
+		return nil, meetupmanager.ErrDependencyNotAvailable
 	}
 
 	packsQuantity, err := BeerPacksQuantity(uint(attendeesCount), uint(upp), dailyForecast.MaxTemp)

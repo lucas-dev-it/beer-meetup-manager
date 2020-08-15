@@ -1,8 +1,9 @@
 package service
 
 import (
-	"errors"
 	"math"
+
+	"github.com/pkg/errors"
 )
 
 // BeerPacksQuantity calculates the amount of beer packs based on number of attendees, temperature and how many beers

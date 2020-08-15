@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	meetupmanager "github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233"
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal"
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal/httpclient"
 )
@@ -42,12 +43,20 @@ func (cli *weatherBitCli) GetForecastData(country, state, city string, forecastD
 
 	response, err := httpCli.PerformRequest(request)
 	if err != nil {
-		return nil, err
+		return nil, meetupmanager.CustomError{
+			Cause:   meetupmanager.ErrDependencyNotAvailable,
+			Type:    meetupmanager.ErrDependencyNotAvailable,
+			Message: "weather provider is not available",
+		}
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
-		return nil, fmt.Errorf("invalid status code: %d", response.StatusCode)
+		return nil, meetupmanager.CustomError{
+			Cause:   meetupmanager.ErrDependencyNotAvailable,
+			Type:    meetupmanager.ErrDependencyNotAvailable,
+			Message: fmt.Sprintf("weather provider responded with an invalid status code: %d", response.StatusCode),
+		}
 	}
 
 	body, err := ioutil.ReadAll(response.Body)

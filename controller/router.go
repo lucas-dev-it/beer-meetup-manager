@@ -14,7 +14,7 @@ var validate *validator.Validate
 const basePath = "/meetup-manager"
 
 type meetupHandler interface {
-	CalculateBeers(w io.Writer, r *http.Request) (interface{}, int, error)
+	CalculateBeers(w io.Writer, r *http.Request) (*handlerResult, error)
 }
 
 type healthHandler struct{}
@@ -26,7 +26,7 @@ func New(meetupHandler meetupHandler) http.Handler {
 
 	router.HandleFunc("/health", hHealth.health).Methods(http.MethodGet)
 
-	router.HandleFunc(fmt.Sprintf("%v/v1/meetups/{id:[0-9]+}/beers", basePath), middleware(meetupHandler.CalculateBeers, true)).Methods(http.MethodGet)
+	router.HandleFunc(fmt.Sprintf("%v/v1/meetups/{id:[0-9]+}/beers", basePath), middleware(meetupHandler.CalculateBeers)).Methods(http.MethodGet)
 
 	return router
 }

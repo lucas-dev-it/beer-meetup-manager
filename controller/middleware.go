@@ -5,48 +5,72 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	meetupmanager "github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233"
 )
 
 type responseWrapper struct {
-	Success bool
-	Data    interface{}
+	Success bool        `json:"success"`
+	Data    interface{} `json:"data"`
 }
 
 type errorDetails struct {
-	message string
+	Message string `json:"message"`
 	// TODO errorTypes
 }
 
 type errorWrapper struct {
-	Success bool
-	Error   errorDetails
+	Success bool         `json:"success"`
+	Error   errorDetails `json:"error"`
 }
 
-func middleware(h func(io.Writer, *http.Request) (interface{}, int, error), wrapResponse bool) http.HandlerFunc {
+type handlerResult struct {
+	status int32
+	body   interface{}
+}
+
+func middleware(h func(io.Writer, *http.Request) (*handlerResult, error)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// execute actual retHandler
-		data, status, err := h(w, r)
+		var response interface{}
+
+		var status int32
+		hr, err := h(w, r)
 		if err != nil {
-			data = err.Error()
+			response = errorWrapper{
+				Success: false,
+				Error:   errorDetails{Message: err.Error()},
+			}
+			status = handleErrors(err)
+		} else {
+			response = responseWrapper{Data: hr.body, Success: true}
+			status = hr.status
 		}
 
-		// wrap the response data
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(status)
-		if status != http.StatusNoContent {
-			var response interface{}
-			if wrapResponse {
-				response = responseWrapper{Data: data, Success: err == nil}
-			} else {
-				response = errorWrapper{
-					Success: false,
-					Error:   errorDetails{message: err.Error()},
-				}
-			}
+		w.WriteHeader(int(status))
 
+		if status != http.StatusNoContent {
 			if err := json.NewEncoder(w).Encode(response); err != nil {
 				log.Printf("could not encode response to output: %v", err)
 			}
 		}
+	}
+}
+
+func handleErrors(err error) int32 {
+	switch t := err.(type) {
+	case meetupmanager.CustomError:
+		switch t.Type {
+		case meetupmanager.ErrDependencyNotAvailable:
+			return http.StatusFailedDependency
+		case meetupmanager.ErrBadRequest:
+			return http.StatusBadRequest
+		case meetupmanager.ErrNotFound:
+			return http.StatusNotFound
+		default:
+			return http.StatusInternalServerError
+		}
+	default:
+		return http.StatusInternalServerError
 	}
 }
