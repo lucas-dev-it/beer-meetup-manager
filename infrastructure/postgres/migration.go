@@ -12,12 +12,14 @@ type dbMigration func(db *gorm.DB) error
 
 var prepareTestMigration = func(db *gorm.DB) error {
 
-	var first model.User
-	if err := db.Find(&first).Error; err != nil && !gorm.IsRecordNotFoundError(err) {
+	user := &model.User{
+		Model: gorm.Model{ID: 1},
+	}
+	if err := db.Find(&user).Error; err != nil && !gorm.IsRecordNotFoundError(err) {
 		return err
 	}
 
-	if first.Username == "username_0" {
+	if user.Username == "username_0" {
 		return nil
 	}
 
