@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -13,8 +14,13 @@ import (
 
 var unitsPerPack = internal.GetEnv("PACK_UNITS", "6")
 
-type WeatherService interface {
+type weatherService interface {
 	GetForecast(country, state, city string) (*weather.Forecast, error)
+}
+
+type cacheRepository interface {
+	StoreForecast(key string, forecast *weather.Forecast) error
+	RetrieveForecast(key string) (*weather.Forecast, error)
 }
 
 type meetupRepository interface {
@@ -23,13 +29,15 @@ type meetupRepository interface {
 }
 
 type MeetUpService struct {
-	weatherService   WeatherService
+	weatherService   weatherService
 	meetupRepository meetupRepository
+	cacheRepository  cacheRepository
 }
 
-func NewMeetUpService(mr meetupRepository, ws WeatherService) *MeetUpService {
+func NewMeetUpService(mr meetupRepository, cr cacheRepository, ws weatherService) *MeetUpService {
 	return &MeetUpService{
 		meetupRepository: mr,
+		cacheRepository:  cr,
 		weatherService:   ws,
 	}
 }
@@ -41,12 +49,23 @@ func (ms *MeetUpService) CalculateBeerPacksForMeetup(meetupID uint) (*business.M
 		return nil, err
 	}
 
-	// TODO check cache first if no results call the weather provider
-	forecast, err := ms.weatherService.GetForecast(meetup.Country, meetup.State, meetup.City)
-	if err != nil {
-		return nil, err
+	var forecast *weather.Forecast
+	key := fmt.Sprintf("%v-%v", meetup.Country, meetup.City)
+
+	// first look it up within the cache
+	forecast, err = ms.cacheRepository.RetrieveForecast(key)
+	if err != nil || forecast == nil {
+		// get from provider and then
+		forecast, err = ms.weatherService.GetForecast(meetup.Country, meetup.State, meetup.City)
+		if err != nil {
+			return nil, err
+		}
+
+		// store it within the cache
+		if err = ms.cacheRepository.StoreForecast(key, forecast); err != nil {
+			return nil, err
+		}
 	}
-	// TODO save in cache what is returned as forecast use country-state-city as key (api have to receive standard names for location)
 
 	upp, err := strconv.ParseUint(unitsPerPack, 10, 64)
 	if err != nil {
