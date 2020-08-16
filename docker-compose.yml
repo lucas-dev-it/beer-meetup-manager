@@ -1,12 +1,14 @@
 version: "3"
 services:
   meetup:
-    container_name: meetup
-    hostname: meetup
     image: lucas-dev-it/meetup:latest
     build: .
-    ports:
-      - "3999:3999"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.meetup.rule=Host(`meetup.santander.com`)
+      - traefik.http.services.meetup.loadbalancer.server.port=3999
+    expose:
+      - 3999
     environment:
       ENVIRONMENT: 'dev'
       PORT: 3999
@@ -25,9 +27,11 @@ services:
     depends_on:
       - postgres
       - redis
+      - reverse-proxy
     links:
       - postgres
       - redis
+      - reverse-proxy
 
   redis:
     container_name: redis
@@ -46,4 +50,18 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS}
     ports:
       - '5432:5432'
+    restart: unless-stopped
+
+  reverse-proxy:
+    container_name: reverse-proxy
+    hostname: reverse-proxy
+    image: traefik:v2.2
+    command:
+    - --api.insecure=true
+    - --providers.docker=true
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
