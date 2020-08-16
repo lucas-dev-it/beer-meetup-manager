@@ -13,6 +13,7 @@ import (
 
 type meetupService interface {
 	CalculateBeerPacksForMeetup(meetupID uint) (*business.MeetupBeersData, error)
+	GetMeetupWeather(meetupID uint) (*business.MeetupBeersData, error)
 }
 
 type MeetupHandler struct {
@@ -24,32 +25,51 @@ func NewMeetupHandler(meetupService meetupService) *MeetupHandler {
 }
 
 func (mh *MeetupHandler) CalculateBeers(w io.Writer, r *http.Request) (*handlerResult, error) {
-	vars := mux.Vars(r)
-	retID := vars["id"]
-
-	ID, err := strconv.ParseUint(retID, 10, 64)
+	ID, err := getIDFromRequest(r)
 	if err != nil {
-		return nil, meetupmanager.CustomError{
-			Cause:   err,
-			Type:    meetupmanager.ErrBadRequest,
-			Message: fmt.Sprintf("provided ID: %v, is not a valid ID value", retID),
-		}
+		return nil, err
 	}
 
 	meetupBeersData, err := mh.meetupService.CalculateBeerPacksForMeetup(uint(ID))
 	if err != nil {
 		return nil, err
-	} else if meetupBeersData == nil {
-		return &handlerResult{
-			status: 200,
-			body: map[string]string{
-				"message": "there is no forecast available for the meetup's date yet, try closer to the meetup's start date",
-			},
-		}, nil
 	}
 
 	return &handlerResult{
 		status: 200,
 		body:   meetupBeersData,
 	}, nil
+}
+
+func (mh *MeetupHandler) MeetupWeather(w io.Writer, r *http.Request) (*handlerResult, error) {
+	ID, err := getIDFromRequest(r)
+	if err != nil {
+		return nil, err
+	}
+
+	meetupWeather, err := mh.meetupService.GetMeetupWeather(uint(ID))
+	if err != nil {
+		return nil, err
+	}
+
+	return &handlerResult{
+		status: 200,
+		body:   meetupWeather,
+	}, nil
+}
+
+func getIDFromRequest(r *http.Request) (uint64, error) {
+	vars := mux.Vars(r)
+	retID := vars["id"]
+
+	ID, err := strconv.ParseUint(retID, 10, 64)
+	if err != nil {
+		return 0, meetupmanager.CustomError{
+			Cause:   err,
+			Type:    meetupmanager.ErrBadRequest,
+			Message: fmt.Sprintf("provided ID: %v, is not a valid ID value", retID),
+		}
+	}
+
+	return ID, nil
 }

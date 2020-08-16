@@ -9,6 +9,8 @@ var (
 	ErrResourceMissingData       = errors.New("there is missing information from resource request")
 	ErrResourceInvalidStatusCode = errors.New("resource provider responded with an unexpected status code")
 
+	ErrNoWeatherInformationAsYet = errors.New("there is no forecast available for the meetup's date")
+
 	ErrBadRequest             = errors.New("provided parameters are wrong") // 400
 	ErrNotFound               = errors.New("the record has not been found") // 404
 	ErrDependencyNotAvailable = errors.New("dependency not available")      // 424

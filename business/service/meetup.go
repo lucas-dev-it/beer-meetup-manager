@@ -51,6 +51,65 @@ func (ms *MeetUpService) CalculateBeerPacksForMeetup(meetupID uint) (*business.M
 		return nil, err
 	}
 
+	meetupWeather, err := ms.getMeetupWeather(meetup)
+	if err != nil {
+		return nil, err
+	}
+
+	upp, err := strconv.ParseUint(unitsPerPack, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	packsQuantity, err := BeerPacksQuantity(uint(attendeesCount), uint(upp), meetupWeather.MaxTemp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &business.MeetupBeersData{
+		BeerPacks:      &packsQuantity,
+		MaxTemperature: meetupWeather.MaxTemp,
+		MinTemperature: meetupWeather.MinTemp,
+		MeetupMetadata: &business.MeetupMetadata{
+			ID:             meetup.ID,
+			Name:           meetup.Name,
+			StartDate:      meetup.StartDate,
+			EndDate:        meetup.EndDate,
+			Country:        meetup.Country,
+			State:          meetup.State,
+			City:           meetup.City,
+			AttendeesCount: &attendeesCount,
+		},
+	}, nil
+}
+
+func (ms *MeetUpService) GetMeetupWeather(meetupID uint) (*business.MeetupBeersData, error) {
+	meetup, err := ms.meetupRepository.FindMeetupByID(meetupID)
+	if err != nil {
+		return nil, err
+	}
+
+	meetupWeather, err := ms.getMeetupWeather(meetup)
+	if err != nil {
+		return nil, err
+	}
+
+	return &business.MeetupBeersData{
+		MaxTemperature: meetupWeather.MaxTemp,
+		MinTemperature: meetupWeather.MinTemp,
+		MeetupMetadata: &business.MeetupMetadata{
+			ID:        meetup.ID,
+			Name:      meetup.Name,
+			StartDate: meetup.StartDate,
+			EndDate:   meetup.EndDate,
+			Country:   meetup.Country,
+			State:     meetup.State,
+			City:      meetup.City,
+		},
+	}, nil
+}
+
+func (ms *MeetUpService) getMeetupWeather(meetup *model.MeetUp) (*weather.DailyForecast, error) {
 	fd, err := strconv.ParseUint(forecastDays, 10, 64)
 	if err != nil {
 		return nil, err
@@ -59,13 +118,14 @@ func (ms *MeetUpService) CalculateBeerPacksForMeetup(meetupID uint) (*business.M
 	now := time.Now()
 	xDaysFromNow := now.AddDate(0, 0, int(fd))
 	if meetup.StartDate.After(xDaysFromNow) {
-		fmt.Printf("meetup after, data: %v", meetup)
-		return nil, nil
+		return nil, meetupmanager.CustomError{
+			Cause:   meetupmanager.ErrNoWeatherInformationAsYet,
+			Type:    meetupmanager.ErrNoWeatherInformationAsYet,
+			Message: fmt.Sprintf("date: %v", meetup.StartDate),
+		}
 	}
 
 	forecast, err := ms.getForecast(meetup, uint(fd))
-
-	upp, err := strconv.ParseUint(unitsPerPack, 10, 64)
 	if err != nil {
 		return nil, err
 	}
@@ -73,30 +133,12 @@ func (ms *MeetUpService) CalculateBeerPacksForMeetup(meetupID uint) (*business.M
 	msd := meetup.StartDate
 	// use 0 hour for the lookup
 	unixDate := time.Date(msd.Year(), msd.Month(), msd.Day(), 0, 0, 0, 0, msd.Location()).Unix()
-	dailyForecast, ok := forecast.DateTempMap[unixDate]
+	meetupWeatherData, ok := forecast.DateTempMap[unixDate]
 	if !ok {
 		return nil, meetupmanager.ErrDependencyNotAvailable
 	}
 
-	packsQuantity, err := BeerPacksQuantity(uint(attendeesCount), uint(upp), dailyForecast.MaxTemp)
-	if err != nil {
-		return nil, err
-	}
-
-	return &business.MeetupBeersData{
-		BeerPacks:      packsQuantity,
-		MaxTemperature: dailyForecast.MaxTemp,
-		MinTemperature: dailyForecast.MinTemp,
-		MeetupMetadata: &business.MeetupMetadata{
-			Name:           meetup.Name,
-			StartDate:      meetup.StartDate,
-			EndDate:        meetup.EndDate,
-			Country:        meetup.Country,
-			State:          meetup.State,
-			City:           meetup.City,
-			AttendeesCount: attendeesCount,
-		},
-	}, nil
+	return meetupWeatherData, nil
 }
 
 func (ms *MeetUpService) getForecast(meetup *model.MeetUp, fd uint) (*weather.Forecast, error) {
