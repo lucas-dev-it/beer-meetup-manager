@@ -87,7 +87,15 @@ func (ms *MeetUpService) CalculateBeerPacksForMeetup(meetupID uint) (*business.M
 		BeerPacks:      packsQuantity,
 		MaxTemperature: dailyForecast.MaxTemp,
 		MinTemperature: dailyForecast.MinTemp,
-		AttendeesCount: attendeesCount,
+		MeetupMetadata: &business.MeetupMetadata{
+			Name:           meetup.Name,
+			StartDate:      meetup.StartDate,
+			EndDate:        meetup.EndDate,
+			Country:        meetup.Country,
+			State:          meetup.State,
+			City:           meetup.City,
+			AttendeesCount: attendeesCount,
+		},
 	}, nil
 }
 

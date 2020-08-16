@@ -41,7 +41,10 @@ func (mh *MeetupHandler) CalculateBeers(w io.Writer, r *http.Request) (*handlerR
 		return nil, err
 	} else if meetupBeersData == nil {
 		return &handlerResult{
-			status: 204,
+			status: 200,
+			body: map[string]string{
+				"message": "there is no forecast available for the meetup's date yet, try closer to the meetup's start date",
+			},
 		}, nil
 	}
 
