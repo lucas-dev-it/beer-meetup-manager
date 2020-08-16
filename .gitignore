@@ -227,3 +227,4 @@ pickle-email-*.html
 node_modules/
 
 .idea
+.env

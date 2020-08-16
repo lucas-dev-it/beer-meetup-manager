@@ -26,6 +26,8 @@ func (rr *redisRepository) StoreForecast(key string, forecast *weather.Forecast)
 	if err = rr.cache.Cli.Set(key, jsonForecast, time.Hour).Err(); err != nil {
 		return err
 	}
+
+	return nil
 }
 
 func (rr *redisRepository) RetrieveForecast(key string) (*weather.Forecast, error) {

@@ -13,9 +13,9 @@ import (
 var (
 	host        = internal.GetEnv("DB_HOST", "localhost")
 	user        = internal.GetEnv("DB_USER", "local")
-	name        = internal.GetEnv("DB_NAME", "beer_meetup")
-	port        = internal.GetEnv("DB_PORT", "5440")
-	password    = internal.GetEnv("DB_PASSWORD", "password")
+	name        = internal.GetEnv("DB_NAME", "meetup")
+	port        = internal.GetEnv("DB_PORT", "5432")
+	password    = internal.GetEnv("DB_PASS", "password")
 	environment = internal.GetEnv("ENVIRONMENT", "dev")
 )
 

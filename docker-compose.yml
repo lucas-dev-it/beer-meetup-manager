@@ -1,0 +1,49 @@
+version: "3"
+services:
+  meetup:
+    container_name: meetup
+    hostname: meetup
+    image: lucas-dev-it/meetup:latest
+    build: .
+    ports:
+      - "3999:3999"
+    environment:
+      ENVIRONMENT: 'dev'
+      PORT: 3999
+      REDIS_HOST: 'redis'
+      REDIS_PORT: 6379
+      DB_HOST: 'pgdb'
+      DB_PORT: 5432
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: meetup
+      FORECAST_DAYS: 10
+      WEATHER_PROVIDER: 'weather-bit'
+      WEATHERBIT_API_KEY: ${WEATHERBIT_API_KEY}
+      PACK_UNITS: 6
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    links:
+      - postgres
+      - redis
+
+  redis:
+    container_name: redis
+    hostname: redis
+    image: redis
+    ports:
+      - '6379:6379'
+    restart: unless-stopped
+
+  postgres:
+    container_name: pgdb
+    hostname: pgdb
+    image: postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    ports:
+      - '5432:5432'
+    restart: unless-stopped
