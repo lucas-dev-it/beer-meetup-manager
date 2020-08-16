@@ -39,6 +39,10 @@ func (mh *MeetupHandler) CalculateBeers(w io.Writer, r *http.Request) (*handlerR
 	meetupBeersData, err := mh.meetupService.CalculateBeerPacksForMeetup(uint(ID))
 	if err != nil {
 		return nil, err
+	} else if meetupBeersData == nil {
+		return &handlerResult{
+			status: 204,
+		}, nil
 	}
 
 	return &handlerResult{

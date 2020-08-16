@@ -43,7 +43,7 @@ func getProviderTestDataJSON(proper bool) []byte {
 func TestWService_GetForecast(t *testing.T) {
 	service, err := NewWeatherService(&httpCliMock{})
 
-	forecast, err := service.GetForecast("argentina", "cordoba", "cordoba")
+	forecast, err := service.GetForecast("argentina", "cordoba", "cordoba", 0)
 	if err != nil {
 		t.Errorf("unexpected error, got: %v", err)
 	}
@@ -67,7 +67,7 @@ func TestWService_GetForecast(t *testing.T) {
 func TestWService_GetForecast_MissingTempFields(t *testing.T) {
 	service, err := NewWeatherService(&httpCliMock{})
 
-	forecast, err := service.GetForecast("chile", "some", "place")
+	forecast, err := service.GetForecast("chile", "some", "place", 0)
 	if err == nil {
 		t.Errorf("expected error, got: %v", forecast)
 	}
@@ -76,7 +76,7 @@ func TestWService_GetForecast_MissingTempFields(t *testing.T) {
 func TestWService_GetForecast_InvalidStatusCode(t *testing.T) {
 	service, err := NewWeatherService(&httpCliMock{})
 
-	forecast, err := service.GetForecast("uruguay", "some", "place")
+	forecast, err := service.GetForecast("uruguay", "some", "place", 0)
 	if err == nil {
 		t.Errorf("expected error, got: %v", forecast)
 	}

@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	meetupmanager "github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233"
@@ -13,9 +14,10 @@ import (
 )
 
 var unitsPerPack = internal.GetEnv("PACK_UNITS", "6")
+var forecastDays = internal.GetEnv("FORECAST_DAYS", "10")
 
 type weatherService interface {
-	GetForecast(country, state, city string) (*weather.Forecast, error)
+	GetForecast(country, state, city string, forecastDays uint) (*weather.Forecast, error)
 }
 
 type cacheRepository interface {
@@ -49,23 +51,19 @@ func (ms *MeetUpService) CalculateBeerPacksForMeetup(meetupID uint) (*business.M
 		return nil, err
 	}
 
-	var forecast *weather.Forecast
-	key := fmt.Sprintf("%v-%v", meetup.Country, meetup.City)
-
-	// first look it up within the cache
-	forecast, err = ms.cacheRepository.RetrieveForecast(key)
-	if err != nil || forecast == nil {
-		// get from provider and then
-		forecast, err = ms.weatherService.GetForecast(meetup.Country, meetup.State, meetup.City)
-		if err != nil {
-			return nil, err
-		}
-
-		// store it within the cache
-		if err = ms.cacheRepository.StoreForecast(key, forecast); err != nil {
-			return nil, err
-		}
+	fd, err := strconv.ParseUint(forecastDays, 10, 64)
+	if err != nil {
+		return nil, err
 	}
+
+	now := time.Now()
+	xDaysFromNow := now.AddDate(0, 0, int(fd))
+	if meetup.StartDate.After(xDaysFromNow) {
+		fmt.Printf("meetup after, data: %v", meetup)
+		return nil, nil
+	}
+
+	forecast, err := ms.getForecast(meetup, uint(fd))
 
 	upp, err := strconv.ParseUint(unitsPerPack, 10, 64)
 	if err != nil {
@@ -91,4 +89,26 @@ func (ms *MeetUpService) CalculateBeerPacksForMeetup(meetupID uint) (*business.M
 		MinTemperature: dailyForecast.MinTemp,
 		AttendeesCount: attendeesCount,
 	}, nil
+}
+
+func (ms *MeetUpService) getForecast(meetup *model.MeetUp, fd uint) (*weather.Forecast, error) {
+	var forecast *weather.Forecast
+	key := fmt.Sprintf("%v-%v", strings.ToLower(meetup.Country), strings.ToLower(meetup.City))
+
+	// first look it up within the cache
+	forecast, err := ms.cacheRepository.RetrieveForecast(key)
+	if err != nil || forecast == nil {
+		// get from provider and then
+		forecast, err = ms.weatherService.GetForecast(meetup.Country, meetup.State, meetup.City, fd)
+		if err != nil {
+			return nil, err
+		}
+
+		// store it within the cache
+		if err = ms.cacheRepository.StoreForecast(key, forecast); err != nil {
+			return nil, err
+		}
+	}
+
+	return forecast, nil
 }

@@ -60,9 +60,38 @@ var prepareTestMigration = func(db *gorm.DB) error {
 
 		start := time.Now()
 		end := start.Add(time.Hour * time.Duration(2))
-		meetup := &model.MeetUp{
-			Name:        "test meetup",
-			Description: "test meetup",
+		validMeetup := &model.MeetUp{
+			Name:        "test validMeetup",
+			Description: "test validMeetup",
+			StartDate:   &start,
+			EndDate:     &end,
+			Country:     "Argentina",
+			State:       "Córdoba",
+			City:        "Córdoba",
+			Attendees:   attendees,
+		}
+		tx.Create(validMeetup)
+
+		start = time.Now().AddDate(0, 0, 9)
+		end = start.Add(time.Hour * time.Duration(2))
+		otherLocation := &model.MeetUp{
+			Name:        "test other location validMeetup",
+			Description: "test other location validMeetup",
+			StartDate:   &start,
+			EndDate:     &end,
+			Country:     "Brasil",
+			State:       "Sao Pablo",
+			City:        "Sao Pablo",
+			Attendees:   attendees,
+		}
+		tx.Create(otherLocation)
+
+
+		start = time.Now().AddDate(1, 0, 0)
+		end = start.Add(time.Hour * time.Duration(2))
+		futureMeetup := &model.MeetUp{
+			Name:        "test future",
+			Description: "test future",
 			StartDate:   &start,
 			EndDate:     &end,
 			Country:     "argentina",
@@ -70,8 +99,8 @@ var prepareTestMigration = func(db *gorm.DB) error {
 			City:        "cordoba",
 			Attendees:   attendees,
 		}
+		tx.Create(futureMeetup)
 
-		tx.Create(meetup)
 		return nil
 	})
 }

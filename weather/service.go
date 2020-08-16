@@ -2,13 +2,9 @@ package weather
 
 import (
 	"net/http"
-	"strconv"
 
-	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal"
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal/httpclient"
 )
-
-var forecastDays = internal.GetEnv("FORECAST_DAYS", "10")
 
 type HttpClient interface {
 	PerformRequest(rd *httpclient.RequestData) (*http.Response, error)
@@ -31,14 +27,9 @@ func NewWeatherService(weatherProvider WeatherProvider) (*WService, error) {
 	return &WService{weatherProvider: weatherProvider}, nil
 }
 
-func (ws *WService) GetForecast(country, state, city string) (*Forecast, error) {
-	fd, err := strconv.ParseUint(forecastDays, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-
+func (ws *WService) GetForecast(country, state, city string, forecastDays uint) (*Forecast, error) {
 	client := httpclient.New(30) // TODO move this to env var
-	response, err := ws.weatherProvider.GetForecastData(country, state, city, uint(fd), client)
+	response, err := ws.weatherProvider.GetForecastData(country, state, city, forecastDays, client)
 	if err != nil {
 		return nil, err
 	}

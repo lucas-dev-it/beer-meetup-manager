@@ -4,8 +4,13 @@ DOCKER_FILE := $(DOCKER_DIR)/docker-compose.yml
 
 .DEFAULT_TARGET: docker
 
-.PHONY: app-run
-app-run:
+.PHONY: run-all
+run-all:
+	@echo "Starting whole environment"
+	@docker-compose -f $(DOCKER_FILE) --project-directory $(DOCKER_DIR) up -d --build --remove-orphans
+
+.PHONY: run-app
+run-app:
 	@echo "Starting service instance"
 	@docker-compose -f $(DOCKER_FILE) --project-directory $(DOCKER_DIR) up -d --build --remove-orphans meetup
 
