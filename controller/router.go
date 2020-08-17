@@ -5,30 +5,33 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 )
 
-var validate *validator.Validate
-
 const basePath = "/meetup-manager"
 
-type meetupHandler interface {
+type mHandler interface {
 	CalculateBeers(w io.Writer, r *http.Request) (*handlerResult, error)
 	MeetupWeather(w io.Writer, r *http.Request) (*handlerResult, error)
 }
 
+type uHandler interface {
+	TokenIssue(w io.Writer, r *http.Request) (*handlerResult, error)
+}
+
 type healthHandler struct{}
 
-func New(meetupHandler meetupHandler) http.Handler {
+func New(userHandler uHandler, meetupHandler mHandler) http.Handler {
 	router := mux.NewRouter()
 
 	hHealth := &healthHandler{}
 
 	router.HandleFunc("/health", hHealth.health).Methods(http.MethodGet)
 
-	router.HandleFunc(fmt.Sprintf("%v/v1/meetups/{id:[0-9]+}/beers", basePath), middleware(meetupHandler.CalculateBeers)).Methods(http.MethodGet)
-	router.HandleFunc(fmt.Sprintf("%v/v1/meetups/{id:[0-9]+}/weather", basePath), middleware(meetupHandler.MeetupWeather)).Methods(http.MethodGet)
+	router.HandleFunc(fmt.Sprintf("%v/v1/meetups/{id:[0-9]+}/beers", basePath), middleware(meetupHandler.CalculateBeers, true)).Methods(http.MethodGet)
+	router.HandleFunc(fmt.Sprintf("%v/v1/meetups/{id:[0-9]+}/weather", basePath), middleware(meetupHandler.MeetupWeather, true)).Methods(http.MethodGet)
+
+	router.HandleFunc("/auth/token-issue", middleware(userHandler.TokenIssue, false)).Methods(http.MethodPost)
 
 	return router
 }

@@ -29,7 +29,7 @@ type handlerResult struct {
 	body   interface{}
 }
 
-func middleware(h func(io.Writer, *http.Request) (*handlerResult, error)) http.HandlerFunc {
+func middleware(h func(io.Writer, *http.Request) (*handlerResult, error), wrapper bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var response interface{}
 
@@ -42,7 +42,11 @@ func middleware(h func(io.Writer, *http.Request) (*handlerResult, error)) http.H
 			}
 			status = handleErrors(err)
 		} else {
-			response = responseWrapper{Data: hr.body, Success: true}
+			if !wrapper {
+				response = hr.body
+			} else {
+				response = responseWrapper{Data: hr.body, Success: true}
+			}
 			status = hr.status
 		}
 

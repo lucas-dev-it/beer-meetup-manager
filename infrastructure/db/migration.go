@@ -2,11 +2,16 @@ package db
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/business/model"
+	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal"
+	"golang.org/x/crypto/bcrypt"
 )
+
+var saltRounds = internal.GetEnv("SECRET_SALT_ROUNDS", "12")
 
 type dbMigration func(db *gorm.DB) error
 
@@ -46,9 +51,19 @@ var prepareTestMigration = func(db *gorm.DB) error {
 				scopes = append(scopes, userScope)
 			}
 
+			salt, err := strconv.Atoi(saltRounds)
+			if err != nil {
+				return err
+			}
+
+			pass, err := bcrypt.GenerateFromPassword([]byte("password"), salt)
+			if err != nil {
+				return err
+			}
+
 			user := &model.User{
-				Username: fmt.Sprintf("username_%v", i),
-				Password: fmt.Sprintf("password_%v", i),
+				Username: fmt.Sprintf("username_%v@mail.com", i),
+				Password: string(pass),
 				Scopes:   scopes,
 			}
 
@@ -85,7 +100,6 @@ var prepareTestMigration = func(db *gorm.DB) error {
 			Attendees:   attendees,
 		}
 		tx.Create(otherLocation)
-
 
 		start = time.Now().AddDate(1, 0, 0)
 		end = start.Add(time.Hour * time.Duration(2))

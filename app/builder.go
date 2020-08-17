@@ -50,7 +50,13 @@ func (b *builder) injectDependencies() error {
 
 	meetupHandler := controller.NewMeetupHandler(meetupService)
 
-	b.controller = controller.New(meetupHandler)
+	userRepository := repository.NewUserRespository(postgres)
+
+	userService := service.NewUserService(userRepository)
+
+	userHandler := controller.NewUserHandler(userService)
+
+	b.controller = controller.New(userHandler, meetupHandler)
 
 	return nil
 }

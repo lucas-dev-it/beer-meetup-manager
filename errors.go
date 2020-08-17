@@ -23,7 +23,7 @@ type CustomError struct {
 }
 
 func (c CustomError) Error() string {
-	return fmt.Sprintf("original cause: %v errorType: %v with message: %v", c.Cause.Error(), c.Type, c.Message)
+	return fmt.Sprintf("errorType: %v with message: %v", c.Type, c.Message)
 }
 
 func (c CustomError) GetType() error {

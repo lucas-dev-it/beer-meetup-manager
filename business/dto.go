@@ -19,3 +19,13 @@ type MeetupMetadata struct {
 	City           string     `json:"city"`
 	AttendeesCount *int       `json:"attendees_count,omitempty"`
 }
+
+type TokenIssue struct {
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+
+type ClaimSet struct {
+	AccessToken map[string]interface{} `json:"access_token"`
+	ExpiresAt   int64                  `json:"expires_at"`
+}
