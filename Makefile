@@ -24,7 +24,9 @@ prepare-environment:
 	@DB_USER=$(or $(DB_USER), $(shell read -p "Postgres User: " user; echo "DB_USER="$$user)); \
 	DB_PASS=$(or $(DB_PASS), $(shell read -p "Postgres Pass: " pass; echo "DB_PASS="$$pass)); \
 	WEATHERBIT_API_KEY=$(or $(WEATHERBIT_API_KEY), $(shell read -p "WeatherBit API Key: " weather_bit_api_key; echo "WEATHERBIT_API_KEY="$$weather_bit_api_key)); \
-	printf "$$DB_USER\n$$DB_PASS\n$$WEATHERBIT_API_KEY\n" > .env
+	INTERNAL_API_KEY=$(or $(INTERNAL_API_KEY), $(shell read -p "Internal API Key: " internal_api_key; echo "INTERNAL_API_KEY="$$internal_api_key)); \
+	JWK_KEY_SET=$(or $(JWK_KEY_SET), $(shell read -p "JWK Key Set: " jwk_key_set; echo "JWK_KEY_SET="$$jwk_key_set)); \
+	printf "$$DB_USER\n$$DB_PASS\n$$WEATHERBIT_API_KEY\n$$JWK_KEY_SET\n$$INTERNAL_API_KEY\n" > .env
 
 .PHONY: docker-down
 docker-down:

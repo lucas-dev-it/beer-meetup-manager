@@ -1,0 +1,129 @@
+{
+  "version": 2,
+  "timeout": "3000ms",
+  "cache_ttl": "300s",
+  "host": [
+    "http://localhost:8080"
+  ],
+  "extra_config": {
+    "github_com/devopsfaith/krakend-cors": {
+      "allow_origins": [
+        "http://localhost:8080"
+      ],
+      "allow_methods": [
+        "POST",
+        "GET"
+      ],
+      "allow_headers": [
+        "Origin",
+        "Authorization",
+        "Content-Type"
+      ],
+      "expose_headers": [
+        "Content-Length"
+      ],
+      "max_age": "12h"
+    },
+    "github_com/devopsfaith/bloomfilter": {
+      "N": 10000000,
+      "P": 0.0000001,
+      "HashName": "optimal",
+      "TTL": 1500,
+      "port": 1234,
+      "TokenKeys": [
+        "jti"
+      ]
+    }
+  },
+  "endpoints": [
+    {
+      "endpoint": "/api/auth/v1/token-issue",
+      "method": "POST",
+      "backend": [
+        {
+          "host": [
+            "http://host.docker.internal:3999"
+          ],
+          "url_pattern": "/auth/v1/token-issue",
+          "extra_config": {
+            "github.com/devopsfaith/krakend-martian": {
+              "header.Modifier": {
+                "scope": [
+                  "request"
+                ],
+                "name": "X-API-INTERNAL-KEY",
+                "value": "{ $HEADER_API_KEY }"
+              }
+            }
+          }
+        }
+      ],
+      "extra_config": {
+        "github.com/devopsfaith/krakend-jose/signer": {
+          "alg": "HS256",
+          "kid": "key_1",
+          "keys-to-sign": [
+            "access_token"
+          ],
+          "jwk-url": "http://host.docker.internal:7777/.well-known/jwk.json",
+          "disable_jwk_security": true
+        }
+      }
+    },
+    {
+      "endpoint": "/api/v3/retailers/sign-up",
+      "output_encoding": "no-op",
+      "method": "POST",
+      "backend": [
+        {
+          "host": [
+            "http://host.docker.internal:3001"
+          ],
+          "url_pattern": "/api/oa-retailers-iam/v3/retailers/sign-up",
+          "encoding": "no-op",
+          "extra_config": {
+            "github.com/devopsfaith/krakend-martian": {
+              "fifo.Group": {
+                "scope": [
+                  "request"
+                ],
+                "aggregateErrors": true,
+                "modifiers": [
+                  {
+                    "header.Modifier": {
+                      "scope": [
+                        "request"
+                      ],
+                      "name": "X-API-INTERNAL-KEY",
+                      "value": "{ $HEADER_API_KEY }"
+                    }
+                  },
+                  {
+                    "header.Modifier": {
+                      "scope": [
+                        "request"
+                      ],
+                      "name": "X-COUNTRY",
+                      "value": "{ $HEADER_COUNTRY }"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "extra_config": {
+        "github.com/devopsfaith/krakend-jose/validator": {
+          "alg": "HS256",
+          "roles_key": "scopes",
+          "roles": [
+            "retailers"
+          ],
+          "jwk-url": "http://host.docker.internal:3001/api/oa-retailers-iam/.well-known/jwk.json",
+          "disable_jwk_security": true
+        }
+      }
+    }
+  ]
+}
