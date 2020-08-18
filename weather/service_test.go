@@ -1,82 +1,88 @@
 package weather
 
 import (
-	"io/ioutil"
-	"net/http"
-	"strings"
+	"encoding/json"
+	"errors"
 	"testing"
 
-	"github.com/go-playground/assert/v2"
-	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal/httpclient"
+	"github.com/stretchr/testify/assert"
 )
 
-type httpCliMock struct{}
+type weatherProvider struct{}
 
-func (hcm *httpCliMock) PerformRequest(rd *httpclient.RequestData) (*http.Response, error) {
-	query := rd.QueryParams["query"]
-
-	data := getProviderTestDataJSON(true)
-	status := 200
-
-	if strings.Contains(query, "chile") {
-		data = getProviderTestDataJSON(false)
-	} else if strings.Contains(query, "uruguay") {
-		data = []byte{}
-		status = 500
+func (w weatherProvider) GetForecastData(country, state, city string, forecastDays uint, client HttpClient) (map[string]interface{}, error) {
+	data, err := getProviderTestDataJSON(true)
+	if err != nil {
+		return nil, err
 	}
 
-	return &http.Response{
-		StatusCode: status,
-		Body:       ioutil.NopCloser(strings.NewReader(string(data))),
-	}, nil
+	if country == "chile" {
+		data, err = getProviderTestDataJSON(false)
+		if err != nil {
+			return nil, err
+		}
+	} else if country == "uruguay" {
+		return nil, errors.New("failed request")
+	}
+
+	return data, nil
 }
 
-func getProviderTestDataJSON(proper bool) []byte {
-	d := testData
+func (w weatherProvider) GetAdapter() adapter {
+	return weatherBit
+}
+
+func getProviderTestDataJSON(proper bool) (map[string]interface{}, error) {
+	d := wbTestData
 	if !proper {
-		d = wrongTestData
+		d = wbWrongTestData
 	}
 
-	return []byte(d)
+	var res map[string]interface{}
+	if err := json.Unmarshal([]byte(d), &res); err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 func TestWService_GetForecast(t *testing.T) {
-	service, err := NewWeatherService(&httpCliMock{})
+	service, err := NewWeatherService(&weatherProvider{})
 
-	forecast, err := service.GetForecast("argentina", "cordoba", "cordoba", 0)
+	forecast, err := service.GetForecast("argentina", "cordoba", "cordoba", 2)
 	if err != nil {
 		t.Errorf("unexpected error, got: %v", err)
 	}
 
 	expected := &Forecast{
-		DateTempMap: map[uint]*DailyForecast{
-			1567814400: {
-				MaxTemp: 25,
-				MinTemp: 17,
+		DateTempMap: map[int64]*DailyForecast{
+			1491004800: {
+				MaxTemp: 30,
+				MinTemp: 26,
 			},
-			1567911600: {
-				MaxTemp: 20,
-				MinTemp: 30,
+			1491091200: {
+				MaxTemp: 32,
+				MinTemp: 21,
 			},
 		},
 	}
 
-	assert.IsEqual(forecast, expected)
+	assert.Equal(t, expected, forecast)
 }
 
 func TestWService_GetForecast_MissingTempFields(t *testing.T) {
-	service, err := NewWeatherService(&httpCliMock{})
+	service, err := NewWeatherService(&weatherProvider{})
 
-	forecast, err := service.GetForecast("chile", "some", "place", 0)
+	forecast, err := service.GetForecast("chile", "some", "place", 2)
 	if err == nil {
 		t.Errorf("expected error, got: %v", forecast)
 	}
 }
 
 func TestWService_GetForecast_InvalidStatusCode(t *testing.T) {
-	service, err := NewWeatherService(&httpCliMock{})
+	service, err := NewWeatherService(&weatherProvider{})
 
-	forecast, err := service.GetForecast("uruguay", "some", "place", 0)
+	forecast, err := service.GetForecast("uruguay", "some", "place", 2)
 	if err == nil {
 		t.Errorf("expected error, got: %v", forecast)
 	}

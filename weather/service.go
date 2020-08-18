@@ -29,12 +29,12 @@ func NewWeatherService(weatherProvider WeatherProvider) (*WService, error) {
 
 func (ws *WService) GetForecast(country, state, city string, forecastDays uint) (*Forecast, error) {
 	client := httpclient.New(30) // TODO move this to env var
-	response, err := ws.weatherProvider.GetForecastData(country, state, city, forecastDays, client)
+	forecastData, err := ws.weatherProvider.GetForecastData(country, state, city, forecastDays, client)
 	if err != nil {
 		return nil, err
 	}
 
-	forecast, err := ws.weatherProvider.GetAdapter()(response)
+	forecast, err := ws.weatherProvider.GetAdapter()(forecastData)
 	if err != nil {
 		return nil, err
 	}

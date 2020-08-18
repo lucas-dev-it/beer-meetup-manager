@@ -3,16 +3,14 @@ package controller
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"strings"
-	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	meetupmanager "github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233"
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal"
+	jwtToken "github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal/token"
 )
 
 var signingString = internal.GetEnv("INTERNAL_API_KEY", "testSigningString")
@@ -85,47 +83,16 @@ func authorize(r *http.Request, requiredScopes map[string]interface{}) error {
 
 	tokenString := strings.TrimSpace(strings.Replace(authHeader, "Bearer ", "", 1))
 
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-
-		return []byte(signingString), nil
-	})
+	token, err := jwtToken.ParseTokenString(tokenString, signingString)
 	if err != nil {
 		return err
 	}
 
-	if err := validJWT(token, requiredScopes); err != nil {
+	if err := jwtToken.ValidJWT(token, requiredScopes); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func validJWT(token *jwt.Token, requiredScopes map[string]interface{}) error {
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		valid := claims.VerifyExpiresAt(time.Now().Unix(), true)
-		if !valid {
-			return errors.New("invalid token - expired")
-		}
-
-		scopes, ok := claims["scopes"].([]interface{})
-		if !ok {
-			return errors.New("invalid token - missing scopes")
-		}
-
-		for _, s := range scopes {
-			sn := s.(string)
-			if _, ok := requiredScopes[sn]; !ok {
-				return errors.New("invalid token - not authorized scopes")
-			}
-		}
-
-		return nil
-	}
-
-	return errors.New("invalid token")
 }
 
 func sendResponse(w http.ResponseWriter, status int32, response interface{}) {

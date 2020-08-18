@@ -41,10 +41,10 @@ func (uh *userHandler) TokenIssue(w io.Writer, r *http.Request) (*handlerResult,
 		}
 	}
 
-	claimSet, err := uh.userService.TokenIssue(&tokenIssue)
+	token, err := uh.userService.TokenIssue(&tokenIssue)
 	if err != nil {
 		return nil, err
 	}
 
-	return &handlerResult{body: claimSet, status: http.StatusOK}, nil
+	return &handlerResult{body: token, status: http.StatusOK}, nil
 }

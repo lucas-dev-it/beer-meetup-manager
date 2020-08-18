@@ -46,6 +46,7 @@ func NewMeetUpService(mr meetupRepository, cr cacheRepository, ws weatherService
 
 func (ms *MeetUpService) CalculateBeerPacksForMeetup(meetupID uint) (*business.MeetupBeersData, error) {
 	attendeesCount := ms.meetupRepository.CountMeetupAttendees(meetupID)
+	// double query to avoid joining to attendees in the above query, hence it will perform better
 	meetup, err := ms.meetupRepository.FindMeetupByID(meetupID)
 	if err != nil {
 		return nil, err

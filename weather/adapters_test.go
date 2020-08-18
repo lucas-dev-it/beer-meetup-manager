@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-const testData = `
+const wsTestData = `
 {
    "current":{
       "observation_time":"03:38 PM",
@@ -31,7 +31,7 @@ const testData = `
 }
 `
 
-const wrongTestData = `
+const wsWrongTestData = `
 {
    "current":{
       "observation_time":"03:38 PM",
@@ -55,10 +55,63 @@ const wrongTestData = `
 }
 `
 
-func getProviderTestData(proper bool) (map[string]interface{}, error){
-	d := testData
-	if !proper {
-		d = wrongTestData
+const wbTestData = `
+{
+    "data":[
+        {
+            "valid_date":"2017-04-01",
+            "max_temp":30,
+            "min_temp":26
+        },
+        {
+            "valid_date":"2017-04-02",
+            "max_temp":32,
+            "min_temp":21
+        }
+    ],
+    "city_name":"Raleigh",
+    "lon":"-78.63861",
+    "timezone":"America\/New_York",
+    "lat":"35.7721",
+    "country_code":"US",
+    "state_code":"NC"
+}
+`
+
+const wbWrongTestData = `
+{
+    "data":[
+        {
+            "max_temp":30,
+            "min_temp":26
+        },
+        {
+            "valid_date":"2017-04-02",
+            "max_temp":32,
+            "min_temp":21
+        }
+    ],
+    "city_name":"Raleigh",
+    "lon":"-78.63861",
+    "timezone":"America\/New_York",
+    "lat":"35.7721",
+    "country_code":"US",
+    "state_code":"NC"
+}
+`
+
+func getProviderTestData(proper bool, provider string) (map[string]interface{}, error) {
+	var d string
+	if provider == "weather-stack" {
+		d = wsTestData
+		if !proper {
+			d = wsWrongTestData
+		}
+	} else {
+		d = wbTestData
+		if !proper {
+			d = wbWrongTestData
+		}
 	}
 
 	var data map[string]interface{}
@@ -70,7 +123,7 @@ func getProviderTestData(proper bool) (map[string]interface{}, error){
 }
 
 func TestWeatherStackAdapter(t *testing.T) {
-	data, err := getProviderTestData(true)
+	data, err := getProviderTestData(true, "weather-stack")
 	if err != nil {
 		t.Errorf("unexpected error, got %v", err)
 	}
@@ -86,12 +139,40 @@ func TestWeatherStackAdapter(t *testing.T) {
 }
 
 func TestWeatherStackAdapter_MissingFields(t *testing.T) {
-	data, err := getProviderTestData(false)
+	data, err := getProviderTestData(false, "weather-stack")
 	if err != nil {
 		t.Errorf("unexpected error, got %v", err)
 	}
 
 	forecast, err := weatherStack(data)
+	if err == nil {
+		t.Errorf("expected error, got %v", forecast)
+	}
+}
+
+func TestWeatherBitAdapter(t *testing.T) {
+	data, err := getProviderTestData(true, "weather-bit")
+	if err != nil {
+		t.Errorf("unexpected error, got %v", err)
+	}
+
+	forecast, err := weatherBit(data)
+	if err != nil {
+		t.Errorf("unexpected error, got %v", err)
+	}
+
+	if len(forecast.DateTempMap) != 2 {
+		t.Errorf("unexpected result, got %v, ", forecast)
+	}
+}
+
+func TestWeatherBitAdapter_MissingFields(t *testing.T) {
+	data, err := getProviderTestData(false, "weather-bit")
+	if err != nil {
+		t.Errorf("unexpected error, got %v", err)
+	}
+
+	forecast, err := weatherBit(data)
 	if err == nil {
 		t.Errorf("expected error, got %v", forecast)
 	}
