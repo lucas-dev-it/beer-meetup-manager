@@ -11,6 +11,7 @@ import (
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/business/model"
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal"
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/weather"
+	"github.com/sirupsen/logrus"
 )
 
 var unitsPerPack = internal.GetEnv("PACK_UNITS", "6")
@@ -51,6 +52,7 @@ func (ms *MeetUpService) CalculateBeerPacksForMeetup(meetupID uint) (*business.M
 	if err != nil {
 		return nil, err
 	}
+	logrus.Infof("meeting with ID %v has %v attendees", meetupID, attendeesCount)
 
 	meetupWeather, err := ms.getMeetupWeather(meetup)
 	if err != nil {
@@ -133,9 +135,11 @@ func (ms *MeetUpService) getMeetupWeather(meetup *model.MeetUp) (*weather.DailyF
 
 	msd := meetup.StartDate
 	// use 0 hour for the lookup
-	unixDate := time.Date(msd.Year(), msd.Month(), msd.Day(), 0, 0, 0, 0, msd.Location()).Unix()
+	date := time.Date(msd.Year(), msd.Month(), msd.Day(), 0, 0, 0, 0, msd.Location())
+	unixDate := date.Unix()
 	meetupWeatherData, ok := forecast.DateTempMap[unixDate]
 	if !ok {
+		logrus.Warnf("there is no available forecast for the selected date meetup with ID %v and start date on %v", meetup.ID, date)
 		return nil, meetupmanager.ErrDependencyNotAvailable
 	}
 
@@ -155,11 +159,13 @@ func (ms *MeetUpService) getForecast(meetup *model.MeetUp, fd uint) (*weather.Fo
 			return nil, err
 		}
 
+		logrus.Infof("updating cache with key %v and values %v", key, forecast)
 		// store it within the cache
 		if err = ms.cacheRepository.StoreForecast(key, forecast); err != nil {
 			return nil, err
 		}
 	}
 
+	logrus.Infof("forecast values for meetup with ID: %v are %v", meetup.ID, forecast)
 	return forecast, nil
 }

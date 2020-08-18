@@ -11,6 +11,7 @@ import (
 	meetupmanager "github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233"
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal"
 	jwtToken "github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal/token"
+	"github.com/sirupsen/logrus"
 )
 
 var signingString = internal.GetEnv("INTERNAL_API_KEY", "testSigningString")
@@ -22,7 +23,6 @@ type responseWrapper struct {
 
 type errorDetails struct {
 	Message string `json:"message"`
-	// TODO errorTypes
 }
 
 type errorWrapper struct {
@@ -46,6 +46,7 @@ func middleware(h func(io.Writer, *http.Request) (*handlerResult, error), requir
 					Success: false,
 					Error:   errorDetails{Message: err.Error()},
 				}
+				logrus.Errorf("an error occurred during request, got: %v", err)
 				sendResponse(w, http.StatusUnauthorized, response)
 				return
 			}

@@ -4,7 +4,10 @@ import (
 	"net/http"
 
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal/httpclient"
+	"github.com/sirupsen/logrus"
 )
+
+const ttl = 30
 
 type HttpClient interface {
 	PerformRequest(rd *httpclient.RequestData) (*http.Response, error)
@@ -28,7 +31,8 @@ func NewWeatherService(weatherProvider WeatherProvider) (*WService, error) {
 }
 
 func (ws *WService) GetForecast(country, state, city string, forecastDays uint) (*Forecast, error) {
-	client := httpclient.New(30) // TODO move this to env var
+	logrus.Info("fetching forecast from weather provider")
+	client := httpclient.New(ttl)
 	forecastData, err := ws.weatherProvider.GetForecastData(country, state, city, forecastDays, client)
 	if err != nil {
 		return nil, err

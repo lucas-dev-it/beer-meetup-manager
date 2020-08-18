@@ -5,11 +5,13 @@ import (
 
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233"
 	"github.com/mitchellh/mapstructure"
+	"github.com/sirupsen/logrus"
 )
 
 type adapter func(response map[string]interface{}) (*Forecast, error)
 
 var weatherStack = func(response map[string]interface{}) (*Forecast, error) {
+	logrus.Info("transforming weather provider weather-stack into canonical model")
 	type wsForecastDaily struct {
 		DateEpoch int64    `mapstructure:"date_epoch"`
 		MinTemp   *float64 `mapstructure:"mintemp"`
@@ -46,6 +48,7 @@ var weatherStack = func(response map[string]interface{}) (*Forecast, error) {
 }
 
 var weatherBit = func(response map[string]interface{}) (*Forecast, error) {
+	logrus.Info("transforming weather provider weather-bit into canonical model")
 	type wbForecastDaily struct {
 		Datetime *string  `mapstructure:"valid_date"`
 		MinTemp  *float64 `mapstructure:"min_temp"`

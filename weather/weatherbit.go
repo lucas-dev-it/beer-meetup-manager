@@ -9,6 +9,7 @@ import (
 	meetupmanager "github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233"
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal"
 	"github.com/lucas-dev-it/62252aee-9d11-4149-a0ea-de587cbcd233/internal/httpclient"
+	"github.com/sirupsen/logrus"
 )
 
 const wbURL = "https://api.weatherbit.io"
@@ -30,9 +31,10 @@ func (cli *weatherBitCli) GetAdapter() adapter {
 }
 
 func (cli *weatherBitCli) GetForecastData(country, state, city string, forecastDays uint, httpCli HttpClient) (map[string]interface{}, error) {
+	URL := fmt.Sprintf("%v/v2.0/forecast/daily", wbURL)
 	request := &httpclient.RequestData{
 		Verb: http.MethodGet,
-		URL:  fmt.Sprintf("%v/v2.0/forecast/daily", wbURL),
+		URL:  URL,
 		QueryParams: map[string]string{
 			"key":     wbAccessKey,
 			"country": country,
@@ -41,6 +43,7 @@ func (cli *weatherBitCli) GetForecastData(country, state, city string, forecastD
 		},
 	}
 
+	logrus.Infof("sending request to %v", URL)
 	response, err := httpCli.PerformRequest(request)
 	if err != nil {
 		return nil, meetupmanager.CustomError{
