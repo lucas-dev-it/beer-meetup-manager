@@ -1,30 +1,37 @@
 version: "3"
 services:
-  jwk-provider:
-    image: lucas-dev-it/jwk-provider:latest
-    build: ./_integrations_/jwk_provider
-    expose:
-      - 7777
-    environment:
-      PORT: 7777
-      JWK_KEY_SET: ${JWK_KEY_SET}
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.jwk-provider.rule=Host(`jwk-provider.santander.com`)
-      - traefik.http.services.jwk-provider.loadbalancer.server.port=7777
+#  jwk-provider:
+#    image: lucas-dev-it/jwk-provider:latest
+#    build: ./_integrations_/jwk_provider
+#    hostname: jwk-provider
+#    ports:
+#      - "7777:7777"
+#    environment:
+#      PORT: 7777
+#      JWK_KEY_SET: ${JWK_KEY_SET}
+#    depends_on:
+#      - api-gateway
+#    links:
+#      - api-gateway
+#    restart: unless-stopped
+  #    labels:
+  #      - traefik.enable=true
+  #      - traefik.http.routers.jwk-provider.rule=Path(`/.well-known/jwk.json`)
+  #      - traefik.http.services.jwk-provider.loadbalancer.server.port=7777
 
-  api-gateway:
-    image:  lucas-dev-it/krakend:latest
-    build: ./_integrations_/api_gateway
-    expose:
-      - 8080
-    environment:
-      HEADER_API_KEY: ${INTERNAL_API_KEY}
-      HEADER_COUNTRY: 'testing-key-from-secrets-env-vars-country'
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.api-gateway.rule=Host(`api-gateway.santander.com`)
-      - traefik.http.services.api-gateway.loadbalancer.server.port=8080
+#  api-gateway:
+#    container_name: api-gateway
+#    image:  lucas-dev-it/krakend:latest
+#    build: ./_integrations_/api_gateway
+#    expose:
+#      - 8080
+#    environment:
+#      HEADER_API_KEY: ${INTERNAL_API_KEY}
+#      HEADER_COUNTRY: 'testing-key-from-secrets-env-vars-country'
+#    labels:
+#      - traefik.enable=true
+#      - traefik.http.routers.api-gateway.rule=Host(`api-gateway.santander.com`)
+#      - traefik.http.services.api-gateway.loadbalancer.server.port=8080
 
   meetup:
     image: lucas-dev-it/meetup:latest
@@ -33,8 +40,10 @@ services:
       - traefik.enable=true
       - traefik.http.routers.meetup.rule=Host(`meetup.santander.com`)
       - traefik.http.services.meetup.loadbalancer.server.port=3999
-    expose:
-      - 3999
+#    expose:
+#      - 3999
+    ports:
+    - 3999:3999
     environment:
       ENVIRONMENT: 'dev'
       PORT: 3999
@@ -49,6 +58,7 @@ services:
       WEATHER_PROVIDER: 'weather-bit'
       WEATHERBIT_API_KEY: ${WEATHERBIT_API_KEY}
       PACK_UNITS: 6
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
     restart: unless-stopped
     depends_on:
       - postgres
@@ -85,6 +95,7 @@ services:
     command:
       - --api.insecure=true
       - --providers.docker=true
+      - --log.level=DEBUG
     ports:
       - "80:80"
       - "8080:8080"

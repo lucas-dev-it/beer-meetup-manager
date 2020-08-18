@@ -25,7 +25,7 @@ type TokenIssue struct {
 	Password string `json:"password" validate:"required"`
 }
 
-type ClaimSet struct {
-	AccessToken map[string]interface{} `json:"access_token"`
-	ExpiresAt   int64                  `json:"expires_at"`
+type AccessToken struct {
+	AccessToken string `json:"access_token"`
+	ExpiresAt   int64  `json:"expires_at"`
 }

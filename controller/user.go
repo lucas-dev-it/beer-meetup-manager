@@ -11,7 +11,7 @@ import (
 )
 
 type userService interface {
-	TokenIssue(ti *business.TokenIssue) (*business.ClaimSet, error)
+	TokenIssue(ti *business.TokenIssue) (*business.AccessToken, error)
 }
 
 type userHandler struct {
@@ -33,7 +33,7 @@ func (uh *userHandler) TokenIssue(w io.Writer, r *http.Request) (*handlerResult,
 		return nil, err
 	}
 
-	if string(tokenIssue.Password) == "" || tokenIssue.Username == "" {
+	if tokenIssue.Password == "" || tokenIssue.Username == "" {
 		return nil, meetupmanager.CustomError{
 			Cause:   meetupmanager.ErrBadRequest,
 			Type:    meetupmanager.ErrBadRequest,

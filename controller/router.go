@@ -10,6 +10,16 @@ import (
 
 const basePath = "/meetup-manager"
 
+var (
+	ALL_SCOPES = map[string]interface{}{
+		"USER":  struct{}{},
+		"ADMIN": struct{}{},
+	}
+	ADMIN = map[string]interface{}{
+		"ADMIN": struct{}{},
+	}
+)
+
 type mHandler interface {
 	CalculateBeers(w io.Writer, r *http.Request) (*handlerResult, error)
 	MeetupWeather(w io.Writer, r *http.Request) (*handlerResult, error)
@@ -28,10 +38,10 @@ func New(userHandler uHandler, meetupHandler mHandler) http.Handler {
 
 	router.HandleFunc("/health", hHealth.health).Methods(http.MethodGet)
 
-	router.HandleFunc(fmt.Sprintf("%v/v1/meetups/{id:[0-9]+}/beers", basePath), middleware(meetupHandler.CalculateBeers, true)).Methods(http.MethodGet)
-	router.HandleFunc(fmt.Sprintf("%v/v1/meetups/{id:[0-9]+}/weather", basePath), middleware(meetupHandler.MeetupWeather, true)).Methods(http.MethodGet)
+	router.HandleFunc(fmt.Sprintf("%v/v1/meetups/{id:[0-9]+}/beers", basePath), middleware(meetupHandler.CalculateBeers, ADMIN, true)).Methods(http.MethodGet)
+	router.HandleFunc(fmt.Sprintf("%v/v1/meetups/{id:[0-9]+}/weather", basePath), middleware(meetupHandler.MeetupWeather, ALL_SCOPES, true)).Methods(http.MethodGet)
 
-	router.HandleFunc("/auth/token-issue", middleware(userHandler.TokenIssue, false)).Methods(http.MethodPost)
+	router.HandleFunc("/auth/token-issue", middleware(userHandler.TokenIssue, nil, false)).Methods(http.MethodPost)
 
 	return router
 }

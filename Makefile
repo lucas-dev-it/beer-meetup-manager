@@ -7,7 +7,7 @@ DOCKER_FILE := $(DOCKER_DIR)/docker-compose.yml
 .PHONY: run-all
 run-all:
 	@echo "Starting whole environment"
-	@docker-compose -f $(DOCKER_FILE) --project-directory $(DOCKER_DIR) up -d --build --remove-orphans
+	@docker-compose -f $(DOCKER_FILE) --project-directory $(DOCKER_DIR) up -d --force-recreate --build --remove-orphans
 
 .PHONY: run-app
 run-app:
@@ -25,8 +25,7 @@ prepare-environment:
 	DB_PASS=$(or $(DB_PASS), $(shell read -p "Postgres Pass: " pass; echo "DB_PASS="$$pass)); \
 	WEATHERBIT_API_KEY=$(or $(WEATHERBIT_API_KEY), $(shell read -p "WeatherBit API Key: " weather_bit_api_key; echo "WEATHERBIT_API_KEY="$$weather_bit_api_key)); \
 	INTERNAL_API_KEY=$(or $(INTERNAL_API_KEY), $(shell read -p "Internal API Key: " internal_api_key; echo "INTERNAL_API_KEY="$$internal_api_key)); \
-	JWK_KEY_SET=$(or $(JWK_KEY_SET), $(shell read -p "JWK Key Set: " jwk_key_set; echo "JWK_KEY_SET="$$jwk_key_set)); \
-	printf "$$DB_USER\n$$DB_PASS\n$$WEATHERBIT_API_KEY\n$$JWK_KEY_SET\n$$INTERNAL_API_KEY\n" > .env
+	printf "$$DB_USER\n$$DB_PASS\n$$WEATHERBIT_API_KEY\n$$INTERNAL_API_KEY\n" > .env
 
 .PHONY: docker-down
 docker-down:

@@ -3,7 +3,7 @@
   "timeout": "3000ms",
   "cache_ttl": "300s",
   "host": [
-    "http://localhost:8080"
+    "http://api-gateway:8080"
   ],
   "extra_config": {
     "github_com/devopsfaith/krakend-cors": {
@@ -37,22 +37,41 @@
   },
   "endpoints": [
     {
-      "endpoint": "/api/auth/v1/token-issue",
+      "endpoint": "/api/auth/login",
       "method": "POST",
       "backend": [
         {
           "host": [
-            "http://host.docker.internal:3999"
+            "http://reverse-proxy"
           ],
-          "url_pattern": "/auth/v1/token-issue",
+          "url_pattern": "/meetup-manager/v1/auth/token-issue",
           "extra_config": {
             "github.com/devopsfaith/krakend-martian": {
-              "header.Modifier": {
+              "fifo.Group": {
                 "scope": [
                   "request"
                 ],
-                "name": "X-API-INTERNAL-KEY",
-                "value": "{ $HEADER_API_KEY }"
+                "aggregateErrors": true,
+                "modifiers": [
+                  {
+                    "header.Modifier": {
+                      "scope": [
+                        "request"
+                      ],
+                      "name": "X-API-INTERNAL-KEY",
+                      "value": "{ $HEADER_API_KEY }"
+                    }
+                  },
+                  {
+                    "header.Modifier": {
+                      "scope": [
+                        "request"
+                      ],
+                      "name": "Host",
+                      "value": "meetup.santander.com"
+                    }
+                  }
+                ]
               }
             }
           }
@@ -65,7 +84,7 @@
           "keys-to-sign": [
             "access_token"
           ],
-          "jwk-url": "http://host.docker.internal:7777/.well-known/jwk.json",
+          "jwk-url": "http://reverse-proxy/.well-known/jwk.json",
           "disable_jwk_security": true
         }
       }
