@@ -1,0 +1,264 @@
+swagger: '2.0'
+info:
+  version: '1.0'
+  title: SantanderProject
+host: localhost
+basePath: /
+securityDefinitions: {}
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /auth/token-issue:
+    post:
+      summary: Authenticate and get the JWT for further calls
+      tags:
+        - Authentication
+      operationId: IssueJWT
+      deprecated: false
+      produces:
+        - application/json
+      parameters:
+        - name: Host
+          in: header
+          required: true
+          enum:
+            - meetup.santander.com
+          type: string
+        - name: request_body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/IssueJWTRequest'
+      responses:
+        200:
+          description: authentication success
+          schema:
+            $ref: '#/definitions/IssueJWTResponse'
+        401:
+          description: invalid credentials
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        403:
+          description: not valid scopes
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /meetup-manager/v1/meetups/{id}/weather:
+    get:
+      summary: Meetup's Weather
+      tags:
+        - Meetups
+      operationId: Meetup's Weather
+      deprecated: false
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: meetup's ID
+          type: integer
+          required: true
+        - name: Authorization
+          in: header
+          required: true
+          default: Bearer {token}
+          type: string
+        - name: Host
+          in: header
+          required: true
+          type: string
+          enum:
+            - meetup.santander.com
+      responses:
+        200:
+          description: weather metadata
+          schema:
+            $ref: '#/definitions/WeatherResponse'
+        204:
+          description: weather data not available
+        403:
+          description: not valid scopes
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        424:
+          description: weather provided responded with an unexpected code
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /meetup-manager/v1/meetups/{id}/beers:
+    get:
+      summary: Meetup's Weather
+      tags:
+        - Meetups
+      operationId: Meetup's Beers
+      deprecated: false
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: meetup's ID
+          type: integer
+          required: true
+        - name: Authorization
+          in: header
+          required: true
+          default: Bearer {token}
+          type: string
+        - name: Host
+          in: header
+          required: true
+          type: string
+          enum:
+            - meetup.santander.com
+      responses:
+        200:
+          description: beer pack count and weather metadata
+          schema:
+            $ref: '#/definitions/WeatherResponse'
+        204:
+          description: weather data not available
+        403:
+          description: not valid scopes
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        424:
+          description: weather provided responded with an unexpected code
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+definitions:
+  ErrorResponse:
+    title: ErrorResponse
+    example:
+      success: false
+      message: this is an example error message
+    type: object
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+  BeerCountResponse:
+    title: Beer packs count for meetup
+    example:
+      success: true
+      data:
+        beer_packs: 1.55
+        max_temperature: 10
+        min_temperature: 2
+        meetup_metadata:
+          id: 1
+          name: test meetup
+          start_date: '2020-08-19T18:13:20.522647Z'
+          end_date: '2020-08-19T20:13:20.522647Z'
+          country: Argentina
+          state: Cordoba
+          city: Cordoba
+          attendees_count: 10
+    type: object
+    properties:
+      success:
+        type: boolean
+      data:
+        type: object
+        properties:
+          max_temperature:
+            type: number
+          min_temperature:
+            type: number
+          meetup_metadata:
+            $ref: '#/definitions/MeetupMetadata'
+  WeatherResponse:
+    title: Meetup's weather information
+    example:
+      success: true
+      data:
+        max_temperature: 10
+        min_temperature: 2
+        meetup_metadata:
+          id: 1
+          name: test meetup
+          start_date: '2020-08-19T18:13:20.522647Z'
+          end_date: '2020-08-19T20:13:20.522647Z'
+          country: Argentina
+          state: Cordoba
+          city: Cordoba
+    type: object
+    properties:
+      success:
+        type: boolean
+      data:
+        type: object
+        properties:
+          max_temperature:
+            type: number
+          min_temperature:
+            type: number
+          meetup_metadata:
+            $ref: '#/definitions/MeetupMetadata'
+  MeetupMetadata:
+    title: Meetup's metadata
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      start_date:
+        type: string
+      end_date:
+        type: string
+      country:
+        type: string
+      state:
+        type: string
+      city:
+        type: string
+      attendees_count:
+        type: integer
+  IssueJWTRequest:
+    title: IssueJWTRequest
+    example:
+      username: username_1@mail.com
+      password: password
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+    required:
+      - username
+      - password
+  IssueJWTResponse:
+    title: IssueJWTResponse
+    example:
+      access_token: this.isa.jwt
+      expires_at: 123456789
+    type: object
+    properties:
+      access_token:
+        type: string
+      expires_at:
+        type: integer
+        format: int64
+tags:
+  - name: Authentication
+    description: user authentication endpoint
+  - name: Meetups
+    description: meetup's operations

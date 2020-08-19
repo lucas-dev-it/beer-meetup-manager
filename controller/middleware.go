@@ -117,7 +117,7 @@ func handleErrors(err error) int32 {
 		case meetupmanager.ErrNotFound:
 			return http.StatusNotFound
 		case meetupmanager.ErrNoWeatherInformationAsYet:
-			return http.StatusNotAcceptable
+			return http.StatusNoContent
 		case meetupmanager.ErrForbiddenAccess:
 			return http.StatusForbidden
 		default:
