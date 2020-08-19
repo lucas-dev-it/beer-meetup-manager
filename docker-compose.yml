@@ -68,3 +68,14 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
+
+  swagger-ui:
+    container_name: swagger-ui
+    hostname: swagger-ui
+    image: swaggerapi/swagger-ui
+    ports:
+      - 8181:8080
+    volumes:
+      - ./_integrations_/swagger:/sw
+    environment:
+      SWAGGER_JSON: /sw/swagger.yml
