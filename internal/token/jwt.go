@@ -26,19 +26,24 @@ func ValidJWT(token *jwt.Token, requiredScopes map[string]interface{}) error {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		valid := claims.VerifyExpiresAt(time.Now().Unix(), true)
 		if !valid {
-			return errors.New("invalid token - expired")
+			return errors.New("token has expired")
 		}
 
 		scopes, ok := claims["scopes"].([]interface{})
 		if !ok {
-			return errors.New("invalid token - missing scopes")
+			return errors.New("missing scopes claim in token")
 		}
 
+		authorize := false
 		for _, s := range scopes {
 			sn := s.(string)
-			if _, ok := requiredScopes[sn]; !ok {
-				return errors.New("invalid token - not authorized scopes")
+			if _, ok := requiredScopes[sn]; ok {
+				authorize = true
+				break
 			}
+		}
+		if !authorize {
+			return errors.New("not enough permissions to perform the request on this resource")
 		}
 
 		return nil

@@ -124,7 +124,7 @@ func (ms *MeetUpService) getMeetupWeather(meetup *model.MeetUp) (*weather.DailyF
 		return nil, meetupmanager.CustomError{
 			Cause:   meetupmanager.ErrNoWeatherInformationAsYet,
 			Type:    meetupmanager.ErrNoWeatherInformationAsYet,
-			Message: fmt.Sprintf("date: %v", meetup.StartDate),
+			Message: fmt.Sprintf("there is no forecast available for the date: %v, forecast is available %v days from now", meetup.StartDate, forecastDays),
 		}
 	}
 
@@ -139,8 +139,11 @@ func (ms *MeetUpService) getMeetupWeather(meetup *model.MeetUp) (*weather.DailyF
 	unixDate := date.Unix()
 	meetupWeatherData, ok := forecast.DateTempMap[unixDate]
 	if !ok {
-		logrus.Warnf("there is no available forecast for the selected date meetup with ID %v and start date on %v", meetup.ID, date)
-		return nil, meetupmanager.ErrDependencyNotAvailable
+		logrus.Warnf("there is no available forecast for the selected meetup date, with ID %v and start date on %v", meetup.ID, date)
+		return nil, meetupmanager.CustomError{
+			Type:    meetupmanager.ErrDependencyNotAvailable,
+			Message: "there is no available forecast for the selected meetup date, forecast is available from today on",
+		}
 	}
 
 	return meetupWeatherData, nil

@@ -56,7 +56,6 @@ func (cli *weatherBitCli) GetForecastData(country, state, city string, forecastD
 
 	if response.StatusCode != 200 {
 		return nil, meetupmanager.CustomError{
-			Cause:   meetupmanager.ErrDependencyNotAvailable,
 			Type:    meetupmanager.ErrDependencyNotAvailable,
 			Message: fmt.Sprintf("weather provider responded with an invalid status code: %d", response.StatusCode),
 		}

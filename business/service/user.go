@@ -15,7 +15,7 @@ import (
 
 var (
 	expirationTime = internal.GetEnv("TOKEN_EXPIRATION_TIME", "1")
-	signingString  = internal.GetEnv("INTERNAL_API_KEY", "testSigningString")
+	signingString  = internal.GetEnv("TOKEN_SIGNING_KEY", "testSigningString")
 )
 
 type userRepository interface {

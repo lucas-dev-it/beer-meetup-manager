@@ -14,7 +14,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var signingString = internal.GetEnv("INTERNAL_API_KEY", "testSigningString")
+var signingString = internal.GetEnv("TOKEN_SIGNING_KEY", "testSigningString")
 
 type responseWrapper struct {
 	Success bool        `json:"success"`
@@ -47,7 +47,7 @@ func middleware(h func(io.Writer, *http.Request) (*handlerResult, error), requir
 					Error:   errorDetails{Message: err.Error()},
 				}
 				logrus.Errorf("an error occurred during request, got: %v", err)
-				sendResponse(w, http.StatusUnauthorized, response)
+				sendResponse(w, http.StatusForbidden, response)
 				return
 			}
 		}
@@ -118,6 +118,8 @@ func handleErrors(err error) int32 {
 			return http.StatusNotFound
 		case meetupmanager.ErrNoWeatherInformationAsYet:
 			return http.StatusNotAcceptable
+		case meetupmanager.ErrForbiddenAccess:
+			return http.StatusForbidden
 		default:
 			return http.StatusInternalServerError
 		}

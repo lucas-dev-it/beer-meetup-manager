@@ -1,0 +1,141 @@
+{
+	"info": {
+		"_postman_id": "b98cb7be-89c8-4bb0-af8d-000983dc9df9",
+		"name": "SantanderProject",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Issue JWT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "36bfb181-77ac-4121-be00-50cb8afbd4b4",
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    token = pm.response.json().access_token;",
+							"    pm.environment.set('access_token', token);",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"host": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Host",
+						"value": "meetup.santander.com",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"username_1@mail.com\",\n    \"password\": \"password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost/auth/token-issue",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"auth",
+						"token-issue"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Meetup's Weather",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"host": true
+				}
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Host",
+						"value": "meetup.santander.com",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost/meetup-manager/v1/meetups/3/weather",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"meetup-manager",
+						"v1",
+						"meetups",
+						"3",
+						"weather"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Meetup's Beer Count",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"host": true
+				}
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Host",
+						"value": "meetup.santander.com",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost/meetup-manager/v1/meetups/1/beers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"meetup-manager",
+						"v1",
+						"meetups",
+						"1",
+						"beers"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
