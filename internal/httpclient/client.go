@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// RequestData wraps all the data needed to perform a request
 type RequestData struct {
 	Verb        string
 	URL         string

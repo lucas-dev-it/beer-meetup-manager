@@ -30,6 +30,7 @@ func NewUserService(userRepository userRepository) *userService {
 	return &userService{userRepository: userRepository}
 }
 
+// TokenIssue gets a new access token for a particular user
 func (us *userService) TokenIssue(ti *business.TokenIssue) (*business.AccessToken, error) {
 	user, err := us.userRepository.FindUserByUsername(ti.Username)
 	if err != nil {

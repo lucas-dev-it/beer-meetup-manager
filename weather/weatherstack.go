@@ -26,11 +26,13 @@ func NewWeatherStackResource(adapter adapter) *weatherStackCli {
 	}
 }
 
+// GetAdapter gets the configured response adapter to normalize the returned data
 func (cli *weatherStackCli) GetAdapter() adapter {
 	return cli.Adapter
 }
 
-func (cli *weatherStackCli) GetForecastData(country, state, city string, forecastDays uint, httpCli HttpClient) (map[string]interface{}, error) {
+// GetForecastData fetches forecast from Weather-Stack provider
+func (cli *weatherStackCli) GetForecastData(country, state, city string, forecastDays uint, httpCli httpClient) (map[string]interface{}, error) {
 	URL := fmt.Sprintf("%v/forecast", wsURL)
 	request := &httpclient.RequestData{
 		Verb: http.MethodGet,

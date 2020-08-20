@@ -12,10 +12,12 @@ type MeetupRepository struct {
 	db *gorm.DB
 }
 
+// NewMeetupRespository new meetup respository instance
 func NewMeetupRespository(DB *gorm.DB) *MeetupRepository {
 	return &MeetupRepository{db: DB}
 }
 
+// CountMeetupAttendees counts the attendees number for a particular meetup ID
 func (mr *MeetupRepository) CountMeetupAttendees(meetupID uint) int {
 	meetup := &model.MeetUp{
 		Model: gorm.Model{ID: meetupID},
@@ -23,6 +25,7 @@ func (mr *MeetupRepository) CountMeetupAttendees(meetupID uint) int {
 	return mr.db.Find(meetup).Association("Attendees").Count()
 }
 
+// FindMeetupByID gets the meetup by providing its ID
 func (mr *MeetupRepository) FindMeetupByID(meetupID uint) (*model.MeetUp, error) {
 	meetup := &model.MeetUp{
 		Model: gorm.Model{ID: meetupID},

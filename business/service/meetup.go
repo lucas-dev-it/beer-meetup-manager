@@ -45,6 +45,7 @@ func NewMeetUpService(mr meetupRepository, cr cacheRepository, ws weatherService
 	}
 }
 
+// CalculateBeerPacksForMeetup retrieves the amount of beer packs needed to buy for a meetup
 func (ms *MeetUpService) CalculateBeerPacksForMeetup(meetupID uint) (*business.MeetupBeersData, error) {
 	attendeesCount := ms.meetupRepository.CountMeetupAttendees(meetupID)
 	// double query to avoid joining to attendees in the above query, hence it will perform better
@@ -86,6 +87,7 @@ func (ms *MeetUpService) CalculateBeerPacksForMeetup(meetupID uint) (*business.M
 	}, nil
 }
 
+// GetMeetupWeather retrieves the meetup's weather data
 func (ms *MeetUpService) GetMeetupWeather(meetupID uint) (*business.MeetupBeersData, error) {
 	meetup, err := ms.meetupRepository.FindMeetupByID(meetupID)
 	if err != nil {

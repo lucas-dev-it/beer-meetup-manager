@@ -18,10 +18,12 @@ type userHandler struct {
 	userService userService
 }
 
+// NewUserHandler gets a new instances for this handler
 func NewUserHandler(userService userService) *userHandler {
 	return &userHandler{userService: userService}
 }
 
+// TokenIssue parses request data to issue a new JWT token
 func (uh *userHandler) TokenIssue(w io.Writer, r *http.Request) (*handlerResult, error) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {

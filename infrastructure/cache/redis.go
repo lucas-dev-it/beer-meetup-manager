@@ -16,6 +16,7 @@ type Redis struct {
 	Cli *redis.Client
 }
 
+// NewRedis provides a new Redis instance
 func NewRedis() *Redis {
 	client := redis.NewClient(&redis.Options{
 		Addr: fmt.Sprintf("%s:%s", redisHost, redisPort),

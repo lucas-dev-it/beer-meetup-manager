@@ -9,7 +9,7 @@ import (
 
 const ttl = 30
 
-type HttpClient interface {
+type httpClient interface {
 	PerformRequest(rd *httpclient.RequestData) (*http.Response, error)
 }
 
@@ -26,10 +26,12 @@ type WService struct {
 	weatherProvider WeatherProvider
 }
 
+// NewWeatherService creates new weather service instance
 func NewWeatherService(weatherProvider WeatherProvider) (*WService, error) {
 	return &WService{weatherProvider: weatherProvider}, nil
 }
 
+// GetForecast gets forecast based on configured weather provider
 func (ws *WService) GetForecast(country, state, city string, forecastDays uint) (*Forecast, error) {
 	logrus.Info("fetching forecast from weather provider")
 	client := httpclient.New(ttl)

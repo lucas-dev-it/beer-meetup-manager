@@ -10,10 +10,12 @@ type userRepository struct {
 	db *gorm.DB
 }
 
+// NewUserRespository gets new user repository instance
 func NewUserRespository(DB *gorm.DB) *userRepository {
 	return &userRepository{db: DB}
 }
 
+// FindUserByUsername gets the user instance by provided username
 func (ur *userRepository) FindUserByUsername(username string) (*model.User, error) {
 	var user model.User
 	if err := ur.db.Where("username = ?", username).Preload("Scopes").Find(&user).Error; err != nil {

@@ -16,6 +16,7 @@ func NewRedisRepository(redis *cache.Redis) *redisRepository {
 	return &redisRepository{cache: redis}
 }
 
+// StoreForecast keeps forecast in cache for an hour
 func (rr *redisRepository) StoreForecast(key string, forecast *weather.Forecast) error {
 	jsonForecast, err := json.Marshal(forecast)
 	if err != nil {
@@ -30,6 +31,7 @@ func (rr *redisRepository) StoreForecast(key string, forecast *weather.Forecast)
 	return nil
 }
 
+// RetrieveForecast gets the forecast data from the cache
 func (rr *redisRepository) RetrieveForecast(key string) (*weather.Forecast, error) {
 	fBytes, err := rr.cache.Cli.Get(key).Bytes()
 	if err != nil {

@@ -10,7 +10,7 @@ import (
 
 type weatherProvider struct{}
 
-func (w weatherProvider) GetForecastData(country, state, city string, forecastDays uint, client HttpClient) (map[string]interface{}, error) {
+func (w weatherProvider) GetForecastData(country, state, city string, forecastDays uint, client httpClient) (map[string]interface{}, error) {
 	data, err := getProviderTestDataJSON(true)
 	if err != nil {
 		return nil, err

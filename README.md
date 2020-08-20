@@ -36,3 +36,13 @@ $ make docker-down
 ```
 
 For the sake of simplify the tests, there was included the postman collection so just need to import it and start playing around it.
+
+### Test Data
+When the service is started up for the first time there is a script that runs to include meetup and user's tests data. By using the meetup's IDs to call the endpoints you will notice:
+- Meetup ID -> `1`: valid location so you must receive forecast data from the provider
+- Meetup ID -> `2`: invalid location, so you will receive a `406` error since the weather bit provider will respond with no content
+- Meetup ID -> `3`: valid location, but meetup start date is next year, so there is no forecast available for that date, so you will get a `204` response code
+
+Users with IDs from `1` to `3` are `ADMIN`s the others from `4` to `10` are just `USER`s
+
+ 

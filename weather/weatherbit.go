@@ -26,11 +26,13 @@ func NewWeatherBitResource(adapter adapter) *weatherBitCli {
 	}
 }
 
+// GetAdapter gets the configured response adapter to normalize the returned data
 func (cli *weatherBitCli) GetAdapter() adapter {
 	return cli.Adapter
 }
 
-func (cli *weatherBitCli) GetForecastData(country, state, city string, forecastDays uint, httpCli HttpClient) (map[string]interface{}, error) {
+// GetForecastData fetches forecast from Weather-Bit provider
+func (cli *weatherBitCli) GetForecastData(country, state, city string, forecastDays uint, httpCli httpClient) (map[string]interface{}, error) {
 	URL := fmt.Sprintf("%v/v2.0/forecast/daily", wbURL)
 	request := &httpclient.RequestData{
 		Verb: http.MethodGet,

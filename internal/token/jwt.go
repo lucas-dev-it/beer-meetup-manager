@@ -8,6 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
+// ParseTokenString gets the jwt.Token by providing it as a string
 func ParseTokenString(tokenString string, signingString string) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -22,6 +23,7 @@ func ParseTokenString(tokenString string, signingString string) (*jwt.Token, err
 	return token, nil
 }
 
+// ValidJWT validates token's claims
 func ValidJWT(token *jwt.Token, requiredScopes map[string]interface{}) error {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		valid := claims.VerifyExpiresAt(time.Now().Unix(), true)

@@ -20,10 +20,12 @@ type MeetupHandler struct {
 	meetupService meetupService
 }
 
+// NewMeetupHandler gets a new instance for this handler
 func NewMeetupHandler(meetupService meetupService) *MeetupHandler {
 	return &MeetupHandler{meetupService: meetupService}
 }
 
+// CalculateBeers parses request data to calculate beer packs to buy
 func (mh *MeetupHandler) CalculateBeers(w io.Writer, r *http.Request) (*handlerResult, error) {
 	ID, err := getIDFromRequest(r)
 	if err != nil {
@@ -41,6 +43,7 @@ func (mh *MeetupHandler) CalculateBeers(w io.Writer, r *http.Request) (*handlerR
 	}, nil
 }
 
+// MeetupWeather parses request data to retrieve meetup's weather information
 func (mh *MeetupHandler) MeetupWeather(w io.Writer, r *http.Request) (*handlerResult, error) {
 	ID, err := getIDFromRequest(r)
 	if err != nil {

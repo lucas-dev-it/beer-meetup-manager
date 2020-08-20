@@ -31,6 +31,7 @@ type uHandler interface {
 
 type healthHandler struct{}
 
+// New router instance
 func New(userHandler uHandler, meetupHandler mHandler) http.Handler {
 	router := mux.NewRouter()
 

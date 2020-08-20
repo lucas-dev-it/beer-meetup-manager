@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// adapter function to transform provider data into a canonical model
 type adapter func(response map[string]interface{}) (*Forecast, error)
 
 var weatherStack = func(response map[string]interface{}) (*Forecast, error) {

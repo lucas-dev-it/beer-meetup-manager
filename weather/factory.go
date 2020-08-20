@@ -5,10 +5,11 @@ import (
 )
 
 type WeatherProvider interface {
-	GetForecastData(country, state, city string, forecastDays uint, client HttpClient) (map[string]interface{}, error)
+	GetForecastData(country, state, city string, forecastDays uint, client httpClient) (map[string]interface{}, error)
 	GetAdapter() adapter
 }
 
+// GetProvider build a new provider resource client
 func GetProvider(providerName string) (WeatherProvider, error) {
 	switch providerName {
 	case "weather-stack":
