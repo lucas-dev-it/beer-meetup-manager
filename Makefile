@@ -32,27 +32,6 @@ prepare-environment:
 docker-down:
 	docker-compose -f $(DOCKER_FILE) down -v
 
-.PHONY: create-database
-create-database:
-	@DB_NAME=$(or $(DB_NAME), $(shell read -p "DB Name: " dbname; echo $$dbname)); \
-	DB_USER=$(or $(DB_USER), $(shell read -p "DB User: " user; echo $$user)); \
-	docker-compose -f $(DOCKER_FILE) exec postgres psql -U $$DB_USER -W -c \
-		"CREATE DATABASE "$$DB_NAME";"
-
-.PHONY: privileges-database
-privileges-database:
-	@DB_NAME=$(or $(DB_NAME), $(shell read -p "DB Name: " dbname; echo $$dbname)); \
-	DB_USER=$(or $(DB_USER), $(shell read -p "DB User: " user; echo $$user)); \
-	docker-compose -f $(DOCKER_FILE) exec postgres psql -U $$DB_USER -W -c \
-		"GRANT ALL PRIVILEGES ON DATABASE "$$DB_NAME" TO "$$DB_USER";"
-
-.PHONY: drop-database
-drop-database:
-	@DB_NAME=$(or $(DB_NAME), $(shell read -p "DB Name: " dbname; echo $$dbname)); \
-	DB_USER=$(or $(DB_USER), $(shell read -p "DB User: " user; echo $$user)); \
-	docker-compose -f $(DOCKER_FILE) exec postgres psql -U $$DB_USER -W -c \
-		"DROP DATABASE "$$DB_NAME";"
-
 .PHONY: redis-get-keys
 redis-get-keys:
 	@KEY=$(or $(KEY), $(shell read -p "Key name: " key; echo $$key)); \
