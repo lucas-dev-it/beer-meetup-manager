@@ -154,7 +154,7 @@ definitions:
       message:
         type: string
   BeerCountResponse:
-    title: Beer packs count for meetup
+    title: BeerCountResponse
     example:
       success: true
       data:
@@ -184,7 +184,7 @@ definitions:
           meetup_metadata:
             $ref: '#/definitions/MeetupMetadata'
   WeatherResponse:
-    title: Meetup's weather information
+    title: WeatherResponse
     example:
       success: true
       data:
@@ -212,7 +212,7 @@ definitions:
           meetup_metadata:
             $ref: '#/definitions/MeetupMetadata'
   MeetupMetadata:
-    title: Meetup's metadata
+    title: MeetupMetadata
     type: object
     properties:
       id:
